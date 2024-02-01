@@ -1,0 +1,27 @@
+{
+  "files.associations": {
+    "stdio.h": "c",
+    "dirent.h": "c",
+    "stdlib.h": "c",
+    "random": "c",
+    "numbers": "c",
+    "floatmatrix.h": "c",
+    "funciones.h": "c",
+    "stat.h": "c",
+    "array": "c",
+    "istream": "c",
+    "memory": "c",
+    "tuple": "c",
+    "type_traits": "c",
+    "utility": "c",
+    "xlocnum": "c",
+    "xutility": "c",
+    "*.tcc": "c",
+    "functional": "c",
+    "list": "c",
+    "xlocale": "c",
+    "xstring": "c",
+    "string_view": "c"
+  },
+  "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0}"
+}
