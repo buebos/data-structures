@@ -28,7 +28,7 @@ Node* append(LinkedList* list, void* value_addr);
  *
  * @returns The new length of the list
  */
-int remove_last(LinkedList* list);
+int pop(LinkedList* list);
 
 /**
  * Adds a new node in the desired index
@@ -36,6 +36,12 @@ int remove_last(LinkedList* list);
  * @returns A pointer to the node added
  */
 Node* insert(LinkedList* list, int index, void* value_addr);
+
+/**
+ * Deallocates nodes from a starting index to an specified index, both
+ * inclusive.
+ */
+Node* delete_index(LinkedList* list, int from, int to);
 
 /**
  * Sets a new node with the value address to the

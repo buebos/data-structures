@@ -57,7 +57,7 @@ Node* append(LinkedList* list, void* value_addr) {
 }
 
 /** Removes the last node and returns the new length */
-int remove_last(LinkedList* list) {
+int pop(LinkedList* list) {
     if (list == NULL) {
         printf("[WARN] Attempted to remove last node for list on address: %p but it's freed\n", list);
         return -1;
@@ -138,6 +138,46 @@ Node* insert(LinkedList* list, int index, void* value_addr) {
     list->length += 1;
 
     return current->next;
+}
+Node* delete_index(LinkedList* list, int from, int to) {
+    if (list == NULL) {
+        printf("[WARN] Attempted delete for list on address: %p but it's freed\n", list);
+        return NULL;
+    }
+    int max_index = list->length - 1;
+
+    if (from < 0 || to < 0 || from > to || from > max_index || to > max_index) {
+        printf("[ERROR] Wrong index access for list on address: %p (from: %d, to: %d)\n", list, from, to);
+        return NULL;
+    }
+
+    Node* current = list->head;
+    Node* prev = NULL;
+
+    for (int i = 0; i <= to; i++) {
+        if (i < from) {
+            prev = current;
+            current = current->next;
+            continue;
+        }
+
+        Node* next = current->next;
+
+        if (prev != NULL) {
+            prev->next = next;
+        } else {
+            list->head = next;
+        }
+
+        free(current->value_addr);
+        free(current);
+
+        current = next;
+    }
+
+    list->length -= (to - from) + 1;
+
+    return current;
 }
 
 void empty_list(LinkedList* list) {

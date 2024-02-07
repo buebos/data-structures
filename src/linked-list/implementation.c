@@ -102,33 +102,37 @@ void printll_enemy(LinkedList* list) {
 int main(int argc, char** argv) {
     LinkedList* list = linked_list(sizeof(int));
 
-    printf("[INFO] Append 5 on List:\n");
+    printf("[INFO] Append 5 on list:\n");
     for (int i = 1; i <= 5; i++) {
         append(list, integer(i));
     }
     printll_int(list);
 
-    printf("\n[INFO] Remove last 3 on List:\n");
+    printf("\n[INFO] Remove last 3 on list:\n");
     for (int i = 1; i <= 3; i++) {
-        remove_last(list);
+        pop(list);
     }
     printll_int(list);
 
-    printf("\n[INFO] Append and insertion on List:\n");
+    printf("\n[INFO] Append and insertion on list:\n");
     append(list, integer(4));
     printll_int(list);
     insert(list, 2, integer(3));
     printll_int(list);
 
-    printf("\n[INFO] Unshift on List:\n");
+    printf("\n[INFO] Unshift on list:\n");
     unshift(list, integer(0));
     printll_int(list);
 
-    printf("\n[INFO] Empty action on List:\n");
+    printf("\n[INFO] Delete from index 1 to 3 on list:\n");
+    delete_index(list, 1, 3);
+    printll_int(list);
+
+    printf("\n[INFO] Empty action on list:\n");
     empty_list(list);
     printll_int(list);
 
-    printf("\n[INFO] Insertions on List:\n");
+    printf("\n[INFO] Insertions on list:\n");
     for (int i = 0; i <= 3; i++) {
         insert(list, i, integer(i * 2));
     }
