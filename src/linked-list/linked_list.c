@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -55,22 +56,19 @@ Node* append(LinkedList* list, void* value_addr) {
 
     return last->next;
 }
-
-/** Removes the last node and returns the new length */
-int pop(LinkedList* list) {
+Node* pop(LinkedList* list) {
     if (list == NULL) {
         printf("[WARN] Attempted to remove last node for list on address: %p but it's freed\n", list);
-        return -1;
+        return NULL;
     }
-
     if (list->head == NULL) {
-        return 0;
+        return NULL;
     }
     if (list->head->next == NULL) {
         free(list->head->value_addr);
         free(list->head);
         list->head = NULL;
-        return 0;
+        return NULL;
     }
 
     Node* prev = list->head;
@@ -86,7 +84,7 @@ int pop(LinkedList* list) {
 
     list->length -= 1;
 
-    return list->length;
+    return prev;
 }
 
 void unshift(LinkedList* list, void* value_addr) {
@@ -180,6 +178,40 @@ Node* delete_index(LinkedList* list, int from, int to) {
     return current;
 }
 
+int delete_where(LinkedList* list, bool predicate(void*, int)) {
+    Node* prev = NULL;
+    Node* current = list->head;
+    int delete_count = 0;
+
+    for (int i = 0; i < list->length; i++) {
+        bool should_delete = predicate(current->value_addr, i);
+
+        if (!should_delete) {
+            prev = current;
+            current = current->next;
+            continue;
+        }
+
+        Node* next = current->next;
+
+        if (prev != NULL) {
+            prev->next = next;
+        } else {
+            list->head = next;
+        }
+
+        free(current->value_addr);
+        free(current);
+        current = next;
+
+        delete_count += 1;
+    }
+
+    list->length -= delete_count;
+
+    return delete_count;
+}
+
 void empty_list(LinkedList* list) {
     if (list == NULL) {
         printf("[WARN] Attempted to empty list on address: %p but it's freed\n", list);
@@ -207,7 +239,7 @@ void empty_list(LinkedList* list) {
     list->head = NULL;
 }
 
-void free_ll(LinkedList** list) {
+void free_list(LinkedList** list) {
     if (list == NULL) {
         printf("[WARN] Attempted to delete list on address: %p but it's freed\n", list);
         return;

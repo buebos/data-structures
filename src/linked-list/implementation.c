@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -16,10 +17,10 @@ typedef struct {
     Position position;
 } Enemy;
 
-int* integer(int value_addr) {
-    int* value_addr_address = calloc(1, sizeof(int));
-    *value_addr_address = value_addr;
-    return value_addr_address;
+int* integer(int value) {
+    int* value_address = calloc(1, sizeof(int));
+    *value_address = value;
+    return value_address;
 }
 void printll_int(LinkedList* list) {
     if (list == NULL) {
@@ -64,6 +65,10 @@ char* get_enemy_tag(int type) {
     switch (type) {
         case 1:
             return "Zombie";
+        case 2:
+            return "Skeleton";
+        case 3:
+            return "Creeper";
         default:
             return "Enemy";
     }
@@ -85,7 +90,7 @@ void printll_enemy(LinkedList* list) {
 
     while (current != NULL) {
         Enemy* enemy = (Enemy*)(current->value_addr);
-        printf("{ id: %d, tag: %s, health: %d }", enemy->id, get_enemy_tag(enemy->type), enemy->health);
+        printf("{ id: %d, tag: %s, health: %d, coords: (%d, %d, %d) }", enemy->id, get_enemy_tag(enemy->type), enemy->health, enemy->position.x, enemy->position.y, enemy->position.z);
 
         current = current->next;
 
@@ -97,6 +102,10 @@ void printll_enemy(LinkedList* list) {
     printf("]");
 
     printf("\n");
+}
+
+bool is_zombie(void* enemy, int index) {
+    return get_enemy_tag(((Enemy*)enemy)->type) == "Zombie";
 }
 
 int main(int argc, char** argv) {
@@ -142,16 +151,25 @@ int main(int argc, char** argv) {
     }
     printll_int(list);
 
-    free_ll(&list);
+    free_list(&list);
     printf("\n[INFO] Freed integer list\n");
 
     printf("\n[INFO] Creating enemy list\n");
     list = linked_list(sizeof(Enemy));
-    printf("\n[INFO] Append 1 enemy\n");
+    printf("\n[INFO] Append 4 enemies\n");
     append(list, enemy(list->length, 10, 1, (Position){0, 0, 0}));
+    append(list, enemy(list->length, 20, 2, (Position){1, 3, 0}));
+    append(list, enemy(list->length, 10, 1, (Position){3, 3, 0}));
+    append(list, enemy(list->length, 30, 3, (Position){3, 3, 0}));
     printll_enemy(list);
+
+    printf("\n[INFO] Deleting zombies\n");
+    int zombies_deleted_count = delete_where(list, is_zombie);
+    printf("\n[INFO] Deleted %d zombies\n", zombies_deleted_count);
+    printll_enemy(list);
+
     printf("\n[INFO] Freed enemy list\n");
-    free_ll(&list);
+    free_list(&list);
 
     return 0;
 }

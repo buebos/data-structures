@@ -1,4 +1,5 @@
 #ifndef __LINKED_LIST__
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -44,6 +45,13 @@ Node* insert(LinkedList* list, int index, void* value_addr);
 Node* delete_index(LinkedList* list, int from, int to);
 
 /**
+ * Deletes the nodes that match the predicate
+ *
+ * @returns The amount of nodes deleted
+ */
+int delete_where(LinkedList* list, bool predicate(void*, int));
+
+/**
  * Sets a new node with the value address to the
  * head of the list and the previous head to the next
  * pointer of the new node
@@ -60,6 +68,6 @@ void empty_list(LinkedList* list);
 /**
  * Empties the linked list and frees the linked list
  */
-void free_ll(LinkedList** list);
+void free_list(LinkedList** list);
 
 #endif /** __LINKED_LIST__ */
