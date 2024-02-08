@@ -211,6 +211,23 @@ int delete_where(LinkedList* list, bool predicate(void*, int)) {
 
     return delete_count;
 }
+void for_each_node(LinkedList* list, void callback(void*, int, LinkedList*)) {
+    if (list == NULL) {
+        printf("[WARN] Attempted to print list on address: %p but it's freed\n", list);
+        return;
+    }
+
+    Node* current = list->head;
+
+    if (current == NULL) {
+        return;
+    }
+
+    for (int i = 0; i < list->length; i++) {
+        callback(current->value_addr, i, list);
+        current = current->next;
+    }
+}
 
 void empty_list(LinkedList* list) {
     if (list == NULL) {

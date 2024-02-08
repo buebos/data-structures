@@ -51,6 +51,8 @@ Node* delete_index(LinkedList* list, int from, int to);
  */
 int delete_where(LinkedList* list, bool predicate(void*, int));
 
+void for_each_node(LinkedList* list, void callback(void*, int, LinkedList*));
+
 /**
  * Sets a new node with the value address to the
  * head of the list and the previous head to the next
