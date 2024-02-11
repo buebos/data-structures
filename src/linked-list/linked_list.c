@@ -30,7 +30,7 @@ LinkedList* linked_list(int node_value_size) {
  */
 Node* append(LinkedList* list, void* value_addr) {
     if (list == NULL) {
-        printf("[WARN] Attempted to append node for list on address: %p but the list it's freed\n", list);
+        printf("[WARN]: Attempted to append node for list on address: %p but the list it's freed\n", list);
         return NULL;
     }
 
@@ -58,7 +58,7 @@ Node* append(LinkedList* list, void* value_addr) {
 }
 Node* pop(LinkedList* list) {
     if (list == NULL) {
-        printf("[WARN] Attempted to remove last node for list on address: %p but it's freed\n", list);
+        printf("[WARN]: Attempted to remove last node for list on address: %p but it's freed\n", list);
         return NULL;
     }
     if (list->head == NULL) {
@@ -98,7 +98,7 @@ void unshift(LinkedList* list, void* value_addr) {
 
 Node* insert(LinkedList* list, int index, void* value_addr) {
     if (list == NULL) {
-        printf("[WARN] Attempted insert for list on address: %p but it's freed\n", list);
+        printf("[WARN]: Attempted insert for list on address: %p but it's freed\n", list);
         return NULL;
     }
     if (index < 0) {
@@ -139,13 +139,13 @@ Node* insert(LinkedList* list, int index, void* value_addr) {
 }
 Node* delete_index(LinkedList* list, int from, int to) {
     if (list == NULL) {
-        printf("[WARN] Attempted delete for list on address: %p but it's freed\n", list);
+        printf("[WARN]: Attempted delete for list on address: %p but it's freed\n", list);
         return NULL;
     }
     int max_index = list->length - 1;
 
     if (from < 0 || to < 0 || from > to || from > max_index || to > max_index) {
-        printf("[ERROR] Wrong index access for list on address: %p (from: %d, to: %d)\n", list, from, to);
+        printf("[ERROR]: Wrong index access for list on address: %p (from: %d, to: %d)\n", list, from, to);
         return NULL;
     }
 
@@ -213,7 +213,7 @@ int delete_where(LinkedList* list, bool predicate(void*, int)) {
 }
 void for_each_node(LinkedList* list, void callback(void*, int, LinkedList*)) {
     if (list == NULL) {
-        printf("[WARN] Attempted to print list on address: %p but it's freed\n", list);
+        printf("[WARN]: Attempted to print list on address: %p but it's freed\n", list);
         return;
     }
 
@@ -229,9 +229,64 @@ void for_each_node(LinkedList* list, void callback(void*, int, LinkedList*)) {
     }
 }
 
+void sortll(LinkedList* list, int get_order_weight(void*, void*)) {
+    if (list->length <= 1) {
+        return;
+    }
+
+    for (int i = 0; i < list->length; i++) {
+        bool was_swapped = false;
+        Node* prev = NULL;
+        Node* current = list->head;
+        Node* next = current->next;
+
+        for (int j = 0; j < list->length - i - 1; j++) {
+            int current_weight = get_order_weight(current->value_addr, next->value_addr);
+            int next_weight = get_order_weight(next->value_addr, current->value_addr);
+
+            if (current_weight > next_weight) {
+                if (prev == NULL) {
+                    list->head = next;
+                } else {
+                    prev->next = next;
+                }
+                current->next = next->next;
+                next->next = current;
+                current = next;
+
+                was_swapped = true;
+            }
+
+            prev = current;
+            current = prev->next;
+            next = current->next;
+        }
+
+        if (!was_swapped) {
+            break;
+        }
+    }
+}
+
+LinkedList* copyll(LinkedList* list, void* get_copy_value_addr(void*)) {
+    LinkedList* new_list = linked_list(list->node_value_size);
+
+    Node* current = list->head;
+
+    while (current != NULL) {
+        void* copy_addr = get_copy_value_addr(current->value_addr);
+
+        append(new_list, copy_addr);
+
+        current = current->next;
+    }
+
+    return new_list;
+}
+
 void empty_list(LinkedList* list) {
     if (list == NULL) {
-        printf("[WARN] Attempted to empty list on address: %p but it's freed\n", list);
+        printf("[WARN]: Attempted to empty list on address: %p but it's freed\n", list);
         return;
     }
 
@@ -258,7 +313,7 @@ void empty_list(LinkedList* list) {
 
 void free_list(LinkedList** list) {
     if (list == NULL) {
-        printf("[WARN] Attempted to delete list on address: %p but it's freed\n", list);
+        printf("[WARN]: Attempted to delete list on address: %p but it's freed\n", list);
         return;
     }
 

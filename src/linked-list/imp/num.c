@@ -64,42 +64,49 @@ Node* insert_int_ordered(LinkedList* list, int insert_value) {
     return NULL;
 }
 
+int get_asc_int_priority(void* a, void* b) {
+    int va = *((int*)a);
+    int vb = *((int*)b);
+
+    return va - vb;
+}
+
 int main() {
     srand(time(0));
 
     LinkedList* list = linked_list(sizeof(int));
 
-    printf("[INFO] Append 5 on list:\n");
+    printf("[INFO]: Append 5 on list:\n");
     for (int i = 1; i <= 5; i++) {
         append(list, integer(i));
     }
     printll_int(list);
 
-    printf("\n[INFO] Remove last 3 on list:\n");
+    printf("\n[INFO]: Remove last 3 on list:\n");
     for (int i = 1; i <= 3; i++) {
         pop(list);
     }
     printll_int(list);
 
-    printf("\n[INFO] Append and insertion on list:\n");
+    printf("\n[INFO]: Append and insertion on list:\n");
     append(list, integer(4));
     printll_int(list);
     insert(list, 2, integer(3));
     printll_int(list);
 
-    printf("\n[INFO] Unshift on list:\n");
+    printf("\n[INFO]: Unshift on list:\n");
     unshift(list, integer(0));
     printll_int(list);
 
-    printf("\n[INFO] Delete from index 1 to 3 on list:\n");
+    printf("\n[INFO]: Delete from index 1 to 3 on list:\n");
     delete_index(list, 1, 3);
     printll_int(list);
 
-    printf("\n[INFO] Empty action on list:\n");
+    printf("\n[INFO]: Empty action on list:\n");
     empty_list(list);
     printll_int(list);
 
-    printf("\n[INFO] Insertions on list:\n");
+    printf("\n[INFO]: Insertions on list:\n");
     for (int i = 0; i <= 3; i++) {
         insert(list, i, integer(i * 2));
     }
@@ -109,17 +116,27 @@ int main() {
     }
     printll_int(list);
 
-    printf("\n[INFO] Empty action on list:\n");
+    printf("\n[INFO]: Empty action on list:\n");
     empty_list(list);
 
-    printf("\n[INFO] Ordered insertions on list:\n");
+    printf("\n[INFO]: Unordered 10 appends on list:\n");
+    for (int i = 1; i <= 10; i++) {
+        append(list, integer(get_random_integer(0, 100)));
+    }
+    printll_int(list);
+
+    printf("\n[INFO]: Sorted list:\n");
+    sortll(list, get_asc_int_priority);
+    printll_int(list);
+
+    printf("\n[INFO]: Ordered insertions on list:\n");
     for (int i = 1; i <= 10; i++) {
         insert_int_ordered(list, get_random_integer(0, 100));
         printll_int(list);
     }
 
     free_list(&list);
-    printf("\n[INFO] Freed integer list\n");
+    printf("\n[INFO]: Freed integer list\n");
 
     return 0;
 }

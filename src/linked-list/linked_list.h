@@ -61,6 +61,30 @@ void for_each_node(LinkedList* list, void callback(void*, int, LinkedList*));
 void unshift(LinkedList* list, void* value_addr);
 
 /**
+ * @brief Bubble sort based on the get_order_weight callback, the
+ * higher the value it returns for a node, the upper it will be
+ * on the list.
+ *
+ * @param list The list to sort
+ * @param get_order_weight Gets passed in two pointers to values on the list
+ * and should return an int that indicates if the first element should go
+ * earlier on the list by being a lower value.
+ */
+void sortll(LinkedList* list, int get_order_weight(void*, void*));
+
+/**
+ * @brief Copies a list, for each value the return of the get_copy_value_addr
+ * should be a pointer to a new allocated value of the original value pointed by
+ * the address passed in to the function
+ *
+ * @param list
+ * @param get_copy_value_addr Gets a pointer to the original value to return
+ * a pointer to a new allocated value that should be a copy of the original.
+ * @return LinkedList*
+ */
+LinkedList* copyll(LinkedList* list, void* get_copy_value_addr(void*));
+
+/**
  * Deallocates the nodes of the linked list and frees
  * the associated value addresses of them without
  * destroying the linked list
