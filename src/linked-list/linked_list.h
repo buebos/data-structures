@@ -73,14 +73,12 @@ void unshift(LinkedList* list, void* value_addr);
 void sortll(LinkedList* list, int get_order_weight(void*, void*));
 
 /**
- * @brief Copies a list, for each value the return of the get_copy_value_addr
- * should be a pointer to a new allocated value of the original value pointed by
- * the address passed in to the function
+ * @brief Copies a list value by value.
  *
  * @param list
- * @param get_copy_value_addr Gets a pointer to the original value to return
+ * @param get_copy_value_addr Receives a pointer to the original value to return
  * a pointer to a new allocated value that should be a copy of the original.
- * @return LinkedList*
+ * @return A linked list copy of the original
  */
 LinkedList* copyll(LinkedList* list, void* get_copy_value_addr(void*));
 

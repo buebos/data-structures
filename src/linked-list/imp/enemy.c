@@ -93,6 +93,12 @@ int deschealth(void* a, void* b) {
     Enemy* eb = (Enemy*)b;
     return eb->health - ea->health;
 }
+
+/**
+ * Actually these two should be a kind of recursive call to sort
+ * alphabetically but since there are only three tags I would not
+ * worry about it. Plus the tags are subsorted by health.
+ */
 int asctag(void* a, void* b) {
     Enemy* ea = (Enemy*)a;
     Enemy* eb = (Enemy*)b;
