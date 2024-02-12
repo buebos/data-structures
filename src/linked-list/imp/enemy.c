@@ -40,6 +40,9 @@ Enemy* enemy(int id, int health, int type, Position position) {
 
     return enemy;
 }
+Enemy* as_enemy(void* addr) {
+    return (Enemy*)addr;
+}
 
 char* get_enemy_tag(int type) {
     switch (type) {
@@ -54,12 +57,8 @@ char* get_enemy_tag(int type) {
     }
 }
 
-bool is_zombie(void* enemy, int index) {
-    return ((Enemy*)enemy)->type == 1;
-}
-
 void print_enemy(void* addr, int index, LinkedList* list) {
-    Enemy* enemy = (Enemy*)addr;
+    Enemy* enemy = as_enemy(addr);
     printf("\t{ id: %d,\t tag: %s,\t health: %d, coords: (%d, %d, %d) }", enemy->id, get_enemy_tag(enemy->type), enemy->health, enemy->position.x, enemy->position.y, enemy->position.z);
 
     if (index < list->length - 1) {
@@ -79,19 +78,16 @@ void printll_enemy(LinkedList* list) {
 }
 
 void* copy_enemy(void* addr) {
-    Enemy* original = (Enemy*)addr;
+    Enemy* original = as_enemy(addr);
     Enemy* copy = enemy(original->id, original->health, original->type, original->position);
     return (void*)copy;
 }
+
 int aschealth(void* a, void* b) {
-    Enemy* ea = (Enemy*)a;
-    Enemy* eb = (Enemy*)b;
-    return ea->health - eb->health;
+    return as_enemy(a)->health - as_enemy(b)->health;
 }
 int deschealth(void* a, void* b) {
-    Enemy* ea = (Enemy*)a;
-    Enemy* eb = (Enemy*)b;
-    return eb->health - ea->health;
+    return as_enemy(b)->health - as_enemy(a)->health;
 }
 
 /**
@@ -100,14 +96,10 @@ int deschealth(void* a, void* b) {
  * worry about it. Plus the tags are subsorted by health.
  */
 int asctag(void* a, void* b) {
-    Enemy* ea = (Enemy*)a;
-    Enemy* eb = (Enemy*)b;
-    return get_enemy_tag(ea->type)[0] - get_enemy_tag(eb->type)[0];
+    return get_enemy_tag(as_enemy(a)->type)[0] - get_enemy_tag(as_enemy(b)->type)[0];
 }
 int desctag(void* a, void* b) {
-    Enemy* ea = (Enemy*)a;
-    Enemy* eb = (Enemy*)b;
-    return get_enemy_tag(eb->type)[0] - get_enemy_tag(ea->type)[0];
+    return get_enemy_tag(as_enemy(b)->type)[0] - get_enemy_tag(as_enemy(a)->type)[0];
 }
 
 int main(int argc, char** argv) {
