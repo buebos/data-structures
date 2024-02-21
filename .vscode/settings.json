@@ -23,7 +23,10 @@
     "xstring": "c",
     "string_view": "c",
     "linked_list.h": "c",
-    "ranges": "c"
+    "ranges": "c",
+    "stdbool.h": "c",
+    "clear.h": "c",
+    "dll.h": "c"
   },
   "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0}"
 }
