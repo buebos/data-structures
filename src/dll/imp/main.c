@@ -27,7 +27,7 @@ int main() {
         clear();
 
         printf("[INFO]: List is: ");
-        printdll(list, print_int_element);
+        dll_print(list, print_int_element);
         printf("[INFO]: List length is: %d", list->length);
 
         printf("\n\n");
@@ -40,13 +40,13 @@ int main() {
 
         clear();
 
-        DLLNode* node = insertdll(list, index, integer(value));
+        DLLNode* node = dll_insert(list, index, integer(value));
         if (node == NULL) {
             printf("[ERROR]: Failed to insert, please provide an index within 0 and the list length which is: %d\n\n", list->length);
         }
 
         printf("[INFO]: Modified list is: ");
-        printdll(list, print_int_element);
+        dll_print(list, print_int_element);
         printf("[INFO]: List length is: %d", list->length);
 
         printf("\n\n");

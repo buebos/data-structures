@@ -22,7 +22,7 @@ DLLNode *dllnode(void *value_addr) {
     return node;
 }
 
-DLLNode *append(DoublyLinkedList *list, void *value_addr) {
+DLLNode *dll_append(DoublyLinkedList *list, void *value_addr) {
     if (list == NULL) {
         return NULL;
     }
@@ -47,7 +47,7 @@ DLLNode *append(DoublyLinkedList *list, void *value_addr) {
 
     list->length += 1;
 }
-DLLNode *unshift(DoublyLinkedList *list, void *value_addr) {
+DLLNode *dll_unshift(DoublyLinkedList *list, void *value_addr) {
     DLLNode *next_head = dllnode(value_addr);
 
     if (list->head->next == NULL) {
@@ -63,7 +63,7 @@ DLLNode *unshift(DoublyLinkedList *list, void *value_addr) {
     return list->head;
 }
 
-DLLNode *insertdll(DoublyLinkedList *list, int index, void *value_addr) {
+DLLNode *dll_insert(DoublyLinkedList *list, int index, void *value_addr) {
     if (list == NULL) {
         printf("[WARN]: Attempted insert for list on address: %p but it's freed\n", list);
         return NULL;
@@ -76,10 +76,10 @@ DLLNode *insertdll(DoublyLinkedList *list, int index, void *value_addr) {
     }
 
     if (index == list->length) {
-        return append(list, value_addr);
+        return dll_append(list, value_addr);
     }
     if (list->length >= 0 && index == 0) {
-        return unshift(list, value_addr);
+        return dll_unshift(list, value_addr);
     }
 
     DLLNode *current = list->head;
@@ -106,7 +106,7 @@ DLLNode *insertdll(DoublyLinkedList *list, int index, void *value_addr) {
     return current->next;
 }
 
-DLLNode *delrangedll(DoublyLinkedList *list, int from, int to) {
+DLLNode *dll_delrange(DoublyLinkedList *list, int from, int to) {
     if (list == NULL) {
         printf("[WARN]: Attempted delete for list on address: %p but it's freed\n", list);
         return NULL;
@@ -157,7 +157,7 @@ DLLNode *delrangedll(DoublyLinkedList *list, int from, int to) {
     return current;
 }
 
-DLLNode *delwheredll(DoublyLinkedList *list, bool predicate(void *, int)) {
+DLLNode *dll_delwhere(DoublyLinkedList *list, bool predicate(void *, int)) {
     if (list == NULL || list->length == 0) {
         return NULL;
     }
@@ -189,7 +189,7 @@ DLLNode *delwheredll(DoublyLinkedList *list, bool predicate(void *, int)) {
     }
 }
 
-DLLNode *dllcutfrom(DoublyLinkedList *list_source, DoublyLinkedList *list_target, int target_index) {
+DLLNode *dll_cutfrom(DoublyLinkedList *list_source, DoublyLinkedList *list_target, int target_index) {
     if (list_source == NULL || list_target == NULL) {
         return NULL;
     }
@@ -273,7 +273,51 @@ DLLNode *dllcutfrom(DoublyLinkedList *list_source, DoublyLinkedList *list_target
     return target_node;
 }
 
-void printdll(DoublyLinkedList *list, void print_element(void *)) {
+void dll_empty(DoublyLinkedList *list) {
+    if (list == NULL) {
+        printf("[WARN]: Attempted to empty list on address: %p but it's freed\n", list);
+        return;
+    }
+
+    if (list->head == NULL) {
+        return;
+    }
+
+    DLLNode *current = list->head;
+    DLLNode *next = current->next;
+
+    while (current != NULL) {
+        free(current->value_addr);
+        free(current);
+        current = next;
+
+        if (next) {
+            next = next->next;
+        }
+    }
+
+    list->length = 0;
+    list->head = NULL;
+}
+
+void dll_free(DoublyLinkedList **list) {
+    if (list == NULL) {
+        printf("[WARN]: Attempted to delete list on address: %p but it's freed\n", list);
+        return;
+    }
+
+    dll_empty(*list);
+    free(*list);
+
+    (*list) = NULL;
+}
+
+void dll_print(DoublyLinkedList *list, void print_element(void *)) {
+    if (list == NULL) {
+        printf("NULL\n");
+        return;
+    }
+
     printf("[ ");
 
     DLLNode *node = list->head;

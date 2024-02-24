@@ -1,0 +1,6 @@
+{
+  "dll-manager": {
+    "powershell": "mkdir build; gcc src/util/clear.c src/dll/dll.c src/dll/imp/dll-manager.c -o build/dllmanager; build/dllmanager",
+    "unix": "mkdir build && gcc src/util/clear.c src/dll/dll.c src/dll/imp/dll-manager.c -o build/dllmanager && build/dllmanager"
+  }
+}

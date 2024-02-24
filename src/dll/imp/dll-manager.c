@@ -17,15 +17,15 @@ void print_int_element(void* value_addr) {
 
 void print_header_lists(DoublyLinkedList** lists) {
     printf("[INFO]: List A is: ");
-    printdll(lists[0], print_int_element);
+    dll_print(lists[0], print_int_element);
 
     printf("\n");
     printf("[INFO]: List B is: ");
-    printdll(lists[1], print_int_element);
+    dll_print(lists[1], print_int_element);
 
     printf("\n");
     printf("[INFO]: List C is: ");
-    printdll(lists[2], print_int_element);
+    dll_print(lists[2], print_int_element);
 
     printf("\n\n");
 }
@@ -65,7 +65,9 @@ int main() {
 
         print_header_lists(lists);
 
-        printf("[INFO]: Operating on list %c\n", list_target_label);
+        if (index < 5) {
+            printf("[INFO]: Operating on list %c\n", list_target_label);
+        }
 
         switch (index) {
             case 0:
@@ -74,13 +76,13 @@ int main() {
                 scanf("%d", &index);
                 printf("[INPUT]: Type value to insert:\t");
                 scanf("%d", &value);
-                node_target = insertdll(list_target, index, integer(value));
+                node_target = dll_insert(list_target, index, integer(value));
                 break;
             case 1:
             case 3:
                 printf("[INPUT]: Type index to delete:\t");
                 scanf("%d", &index);
-                node_target = delrangedll(list_target, index, index);
+                node_target = dll_delrange(list_target, index, index);
                 break;
             case 4:
                 list_target = lists[2];
@@ -90,10 +92,18 @@ int main() {
                 printf("[INPUT]: Type index to paste in:\t");
                 scanf("%d", &index);
 
-                node_target = dllcutfrom(lists[res_char == 'B'], list_target, index);
+                node_target = dll_cutfrom(lists[res_char == 'B'], list_target, index);
                 break;
             default:
-                printf("\n[INFO]: See you in space cowboy!");
+                clear();
+
+                for (int i = 0; i < LISTS_LEN; i++) {
+                    dll_free(&lists[i]);
+                }
+
+                print_header_lists(lists);
+
+                printf("[INFO]: See you in space cowboy!\n");
                 return 0;
         }
 
