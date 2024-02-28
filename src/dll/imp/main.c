@@ -57,7 +57,7 @@ int main() {
         should_continue = res == *"y";
     }
 
-    printf("\n[INFO]: See you in space cowboy!");
+    printf("\n[INFO]: See you space cowboy!");
 
     return 0;
 }

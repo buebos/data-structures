@@ -103,7 +103,7 @@ int main() {
 
                 print_header_lists(lists);
 
-                printf("[INFO]: See you in space cowboy!\n");
+                printf("[INFO]: See you space cowboy!\n");
                 return 0;
         }
 
