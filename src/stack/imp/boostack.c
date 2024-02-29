@@ -6,16 +6,13 @@
 #include "../../util/clear.h"
 #include "../stack.h"
 
-#define GENRE_YEAR_LENGTH 11
-#define BOOK_LENGTH 44
-
 typedef struct {
     char title[64];
     char genre[32];
     unsigned int year;
 } Book;
 
-Book BOOKS[BOOK_LENGTH] = {
+Book BOOKS[] = {
     {"Cell", "Horror", 2006},
     {"The Street Lawyer", "Thriller", 1998},
     {"Nineteen Minutes", "Thriller", 2007},
@@ -61,32 +58,7 @@ Book BOOKS[BOOK_LENGTH] = {
     {"Cold Mountain", "Historical novel", 1997},
     {"A Feast for Crows", "Fantasy", 2005},
 };
-
-const char GENRES[11][35] =
-    {"Fantasy",
-     "Historical novel",
-     "Crime",
-     "Historical fiction",
-     "Mystery",
-     "Thriller",
-     "Science fiction",
-     "Post-apocalyptic fiction",
-     "Fiction",
-     "Horror",
-     "Adventure Story"};
-
-const unsigned int YEARS[11] = {
-    1997,
-    1998,
-    1999,
-    2000,
-    2001,
-    2002,
-    2003,
-    2004,
-    2005,
-    2006,
-    2007};
+size_t BOOK_LENGTH = sizeof(BOOKS) / sizeof(Book);
 
 Stack* init_box() {
     Stack* box = stack_new(BOOK_LENGTH);
@@ -103,55 +75,68 @@ Stack* init_box() {
 Book* as_book(void* addr) {
     return (Book*)addr;
 }
+
+void header() {
+    printf("--- BOOSTACK (%zu books) ---\n\n", BOOK_LENGTH);
+}
 void print_book(void* addr) {
     const Book* book = as_book(addr);
 
     printf(" (%d), (%s), (%s) ", book->year, book->genre, book->title);
 }
 
-void stack_match_genre(Stack** genre_stacks, Book* book) {
+Stack** stacks_match_one_or_create(Stack** stacks, size_t* stacks_length, Book* book, char* strategy) {
     if (book == NULL) {
-        return;
+        return stacks;
     }
 
-    for (int i = 0; i < GENRE_YEAR_LENGTH; i++) {
-        if (strcmp(GENRES[i], book->genre) == 0) {
-            stack_push(genre_stacks[i], book);
+    bool is_genre_match = strcmp(strategy, "genre") == 0;
+
+    for (int i = 0; i < *stacks_length; i++) {
+        Book* top_book = as_book(stacks[i]->top->data);
+
+        if (!top_book) {
+            continue;
+        }
+
+        if (
+            (is_genre_match && strcmp(top_book->genre, book->genre) == 0) ||
+            (!is_genre_match && (top_book->year - book->year == 0))) {
+            stack_push(stacks[i], book);
+            return stacks;
         }
     }
-}
-void stack_match_year(Stack** year_stacks, Book* book) {
-    if (book == NULL) {
-        return;
+
+    if (stacks == NULL) {
+        stacks = calloc(1, sizeof(Stack));
+    } else {
+        stacks = realloc(stacks, ((*stacks_length) + 1) * sizeof(Stack));
     }
 
-    for (int i = 0; i < GENRE_YEAR_LENGTH; i++) {
-        if (YEARS[i] == book->year) {
-            stack_push(year_stacks[i], book);
-        }
-    }
+    /** Capacity to the max books the stack can contain */
+    stacks[*stacks_length] = stack_new(BOOK_LENGTH);
+    /** Since the books are not dynamically allocated */
+    stacks[*stacks_length]->should_free_node_data_address = false;
+
+    stack_push(stacks[*stacks_length], book);
+
+    *stacks_length += 1;
+
+    return stacks;
 }
 
-void header() {
-    printf("--- BOOSTACK ---\n\n");
-}
-void menu_stack_by(Stack* box, char* strategy) {
-    Stack* stacks[GENRE_YEAR_LENGTH] = {NULL};
+Stack** menu_stack_by(Stack* box, size_t* stacks_length_dir, char* strategy) {
+    Stack** stacks = NULL;
+    size_t stacks_length = *stacks_length_dir;
+
     const bool is_genre_stacks = strcmp(strategy, "genre") == 0;
 
-    for (int i = 0; i < GENRE_YEAR_LENGTH; i++) {
-        stacks[i] = stack_new(BOOK_LENGTH);
-        stacks[i]->should_free_node_data_address = false;
-    }
-
     while (box->top) {
-        if (is_genre_stacks) {
-            stack_match_genre(stacks, as_book(box->top->data));
-        } else {
-            stack_match_year(stacks, as_book(box->top->data));
-        }
+        stacks = stacks_match_one_or_create(stacks, stacks_length_dir, box->top->data, strategy);
+
         stack_pop(box);
     }
+    stacks_length = *stacks_length_dir;
 
     while (true) {
         unsigned int option = 0;
@@ -165,19 +150,26 @@ void menu_stack_by(Stack* box, char* strategy) {
             printf("[INFO]: [2] Stack by year\n\n");
         }
 
-        for (int i = 0; i < GENRE_YEAR_LENGTH; i++) {
+        for (int i = 0; i < stacks_length; i++) {
+            Book* current_stack_top_book = as_book(stacks[i]->top->data);
+
+            if (current_stack_top_book == NULL) {
+                continue;
+            }
+
             if (is_genre_stacks) {
-                printf("[%d]: %s\n", i, GENRES[i]);
+                printf("[%d]: %s\n", i, current_stack_top_book->genre);
             } else {
-                printf("[%d]: %d\n", i, YEARS[i]);
+                printf("[%d]: %d\n", i, current_stack_top_book->year);
             }
         }
-        printf("[11]: Back to main menu\n\n");
+
+        printf("\n[%d]: Back to main menu\n\n", stacks_length);
 
         printf("[INPUT]: Selection: ");
         scanf("%d", &option);
 
-        if (option == 11) {
+        if (option == stacks_length) {
             break;
         }
 
@@ -185,24 +177,22 @@ void menu_stack_by(Stack* box, char* strategy) {
         header();
         if (is_genre_stacks) {
             printf("[MENU]: [1] Stack by genre\n\n");
-            printf("[INFO]: Stack of genre: %s\n", GENRES[option]);
+            printf("[INFO]: Stack of genre: %s\n", as_book(stacks[option]->top->data)->genre);
         } else {
             printf("[MENU]: [2] Stack by year\n\n");
-            printf("[INFO]: Stack of year: %d\n", YEARS[option]);
+            printf("[INFO]: Stack of year: %d\n", as_book(stacks[option]->top->data)->year);
         }
 
         stack_vertical_print(stacks[option], print_book);
 
         printf("\n");
-        printf("[INPUT]: Type any key to continue: ");
-        scanf(" %c", &option);
+        printf("[INPUT]: Type any letter to continue: ");
+        scanf(" %c", (char*)&option);
 
         printf("\n");
     }
 
-    for (int i = 0; i < GENRE_YEAR_LENGTH; i++) {
-        stack_free(stacks[i]);
-    }
+    return stacks;
 }
 
 int main() {
@@ -211,6 +201,9 @@ int main() {
     char res_char = '\0';
 
     while (should_continue) {
+        Stack** stacks = NULL;
+        size_t stacks_length = 0;
+
         unsigned int selected_option = 0;
 
         clear();
@@ -245,19 +238,29 @@ int main() {
                 should_continue = res_char == 'y';
                 break;
             case 1:
-                menu_stack_by(box, "genre");
+                stacks = menu_stack_by(box, &stacks_length, "genre");
                 break;
             case 2:
-                menu_stack_by(box, "year");
+                stacks = menu_stack_by(box, &stacks_length, "year");
                 break;
             default:
                 break;
         }
 
-        if (selected_option != 0) {
-            stack_free(box);
-            box = init_box();
+        if (stacks == NULL) {
+            continue;
         }
+
+        for (int i = 0; i < stacks_length; i++) {
+            while (stacks[i]->top) {
+                stack_push(box, stacks[i]->top->data);
+                stack_pop(stacks[i]);
+            }
+
+            stack_free(stacks[i]);
+        }
+
+        free(stacks);
     }
 
     stack_free(box);

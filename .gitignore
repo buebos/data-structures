@@ -1,4 +1,10 @@
+# Ignore any generic executable
 *.exe
 *.out
 
+# Ignore all project outputs (the bin dir is for the desired outputs to commit only)
 build
+
+# Include some selected binaries
+!bin/*.exe
+!bin/*.out
