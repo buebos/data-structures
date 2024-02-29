@@ -26,7 +26,14 @@
     "ranges": "c",
     "stdbool.h": "c",
     "clear.h": "c",
-    "dll.h": "c"
+    "dll.h": "c",
+    "deque": "c",
+    "format": "c",
+    "initializer_list": "c",
+    "queue": "c",
+    "span": "c",
+    "vector": "c",
+    "xhash": "c"
   },
   "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0}"
 }
