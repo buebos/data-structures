@@ -8,5 +8,8 @@
   },
   "boostack": {
     "powershell": "gcc src/util/clear.c src/stack/stack.c src/stack/imp/boostack.c -o build/boostack.exe"
+  },
+  "queshop": {
+    "powershell": "gcc src/util/int.c src/util/clear.c src/queue/queue.c src/queue/imp/queshop.c -o bin/queshop.exe"
   }
 }
