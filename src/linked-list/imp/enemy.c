@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 #include "../../util/clear.h"
-#include "../linked_list.h"
+#include "../linked-list.h"
 
 typedef struct {
     int x;

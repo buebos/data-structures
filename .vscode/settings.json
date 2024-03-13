@@ -33,7 +33,17 @@
     "queue": "c",
     "span": "c",
     "vector": "c",
-    "xhash": "c"
+    "xhash": "c",
+    "queue.h": "c",
+    "atomic": "c",
+    "charconv": "c",
+    "cstring": "c",
+    "system_error": "c",
+    "xlocbuf": "c",
+    "xlocinfo": "c",
+    "xlocmon": "c",
+    "xmemory": "c",
+    "string.h": "c"
   },
   "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0}"
 }

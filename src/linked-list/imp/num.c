@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "../linked_list.h"
+#include "../linked-list.h"
 
 int get_random_integer(int lower, int upper) {
     return (rand() %
