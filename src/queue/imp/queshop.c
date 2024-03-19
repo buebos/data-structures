@@ -5,7 +5,7 @@
 
 #include "../../util/clear.h"
 #include "../../util/int.h"
-#include "../queue.h"
+#include "../queue-list.h"
 
 void header() {
     printf("~~~~~ QUESHOP ~~~~~\n\n");
