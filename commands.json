@@ -11,5 +11,8 @@
   },
   "queshop": {
     "powershell": "gcc src/util/int.c src/util/clear.c src/queue/queue.c src/queue/imp/queshop.c -o bin/queshop.exe"
+  },
+  "quetify": {
+    "unix": "gcc src/util/clear.c src/queue/imp/quetify/quong.c src/queue/imp/quetify/quetify.c"
   }
 }
