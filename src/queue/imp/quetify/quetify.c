@@ -11,7 +11,7 @@ typedef struct {
     Quong main_queue;
     bool should_run;
     unsigned short current_menu;
-    short latest_operation_status;
+    short current_operation_status;
 } App;
 
 static Song SONGS[] = {
@@ -55,14 +55,14 @@ const size_t MENUS_LENGTH = sizeof(MENUS) / MENU_LABEL_LENGTH;
 void print_song(size_t index, Song* song) {
     printf("[%zu]: %s - %s | %s", index, song->title, song->author, song->release_date);
 }
-void print_enqueued_song(size_t initial_index, QuongNode* enqueued, Quong* quong) {
-    if (enqueued->index == initial_index) {
+void print_enqueued_song(size_t current_song_index, QuongNode* enqueued, Quong* quong) {
+    if (enqueued->index == current_song_index) {
         printf("> ");
     }
 
     print_song(enqueued->index + 1, enqueued->song);
 
-    if (enqueued->index == initial_index) {
+    if (enqueued->index == current_song_index) {
         printf(" <");
     }
 
@@ -90,6 +90,7 @@ void AppHeader(App* app) {
 
     printf(
         "|\t%s\t-\tPlay mode: %s |\n\n",
+
         MENUS[app->current_menu],
         quong_get_play_mode_label(app->main_queue._play_mode) /***/
     );
@@ -119,7 +120,7 @@ void MenuAddQueueSong(App* app) {
     printf("[INPUT]: Type the position on the queue (>=1): ");
     scanf("%zu", &queue_target_index);
 
-    app->latest_operation_status = quong_fifo_index_operation(
+    app->current_operation_status = quong_fifo_index_operation(
         OPERATION_QUONG_INSERT,
         &app->main_queue,
         &SONGS[song_target_id - 1],
@@ -140,9 +141,9 @@ void MenuSongQueueList(App* app) {
     printf("\n");
 
     printf("[INPUT]: Type any key to continue: ");
-    scanf("%hd", &app->latest_operation_status);
+    scanf("%hd", &app->current_operation_status);
 
-    app->latest_operation_status = 0;
+    app->current_operation_status = 0;
 }
 
 void MenuDeleteQueueSong(App* app) {
@@ -157,7 +158,7 @@ void MenuDeleteQueueSong(App* app) {
     printf("[INPUT]: Type the ID of the song to delete: ");
     scanf("%zu", &queue_target_index);
 
-    app->latest_operation_status = quong_fifo_index_operation(
+    app->current_operation_status = quong_fifo_index_operation(
         OPERATION_QUONG_DELETE,
         &app->main_queue,
         NULL,
@@ -177,6 +178,17 @@ void MenuInvalidInput(App* app) {
     scanf("%hd", &app->current_menu);
 
     app->current_menu = 0;
+}
+
+void MenuQuongOperationError(App* app) {
+    clear();
+
+    AppHeader(app);
+
+    printf("[ERROR]: %s\n\n", quong_get_operation_status_label(app->current_operation_status));
+
+    printf("[INPUT]: Type any key to continue: ");
+    scanf("%hd", app->current_menu);
 }
 
 void MenuMain(App* app) {
@@ -199,6 +211,7 @@ int main() {
 
     while (app.should_run) {
         app.current_menu = 0;
+        app.current_operation_status = SUCCESS_QUONG_OPERATION;
 
         clear();
         MenuMain(&app);
@@ -207,13 +220,13 @@ int main() {
 
         switch (app.current_menu) {
             case 1:
-                app.latest_operation_status = quong_toggle_loop(&app.main_queue);
+                app.current_operation_status = quong_toggle_loop(&app.main_queue);
                 break;
             case 2:
-                app.latest_operation_status = quong_prev(&app.main_queue);
+                app.current_operation_status = quong_prev(&app.main_queue);
                 break;
             case 3:
-                app.latest_operation_status = quong_next(&app.main_queue);
+                app.current_operation_status = quong_next(&app.main_queue);
                 break;
             case 4:
                 MenuAddQueueSong(&app);
@@ -235,15 +248,8 @@ int main() {
                 break;
         }
 
-        if (app.latest_operation_status != SUCCESS_QUONG_OPERATION) {
-            clear();
-
-            AppHeader(&app);
-
-            printf("[ERROR]: %s\n\n", quong_get_operation_status_label(app.latest_operation_status));
-
-            printf("[INPUT]: Type any key to continue: ");
-            scanf("%hd", &app.current_menu);
+        if (app.current_operation_status != SUCCESS_QUONG_OPERATION) {
+            MenuQuongOperationError(&app);
         }
     }
 
