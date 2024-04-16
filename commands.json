@@ -14,5 +14,8 @@
   },
   "quetify": {
     "unix": "gcc src/util/clear.c src/queue/imp/quetify/quong.c src/queue/imp/quetify/quetify.c"
+  },
+  "bitify": {
+    "unix": "gcc src/util/clear.c src/binary-tree/binary-tree.c src/binary-tree/imp/bitify.c"
   }
 }

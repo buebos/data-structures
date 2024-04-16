@@ -44,7 +44,8 @@
     "xlocmon": "c",
     "xmemory": "c",
     "string.h": "c",
-    "queue-array.h": "c"
+    "queue-array.h": "c",
+    "binary-tree.h": "c"
   },
   "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0}"
 }
