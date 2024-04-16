@@ -17,5 +17,8 @@
   },
   "bitify": {
     "unix": "gcc src/util/clear.c src/binary-tree/binary-tree.c src/binary-tree/imp/bitify.c"
+  },
+  "treeshop": {
+    "unix": "gcc src/binary-tree/binary-tree.c src/binary-tree/imp/treeshop.c"
   }
 }

@@ -32,5 +32,8 @@ int bt_get_data_depth(BT *bt, void *data);
 size_t bt_get_node_count_recursive(BTNode *current);
 size_t bt_get_depth_recursive(BTNode *current, size_t prev_depth);
 void bt_print_recursive(BT *bt, BTNode *current, size_t current_depth);
+short unsigned bt_equal(BT *bta, BT *btb);
+void bt_print(BT *bt, short strategy);
+void bt_free_recursive(BT *bt);
 
 #endif /* BINARY_TREE_H */

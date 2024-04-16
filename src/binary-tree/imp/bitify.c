@@ -99,6 +99,8 @@ int main(void) {
         }
     }
 
+    bt_free_recursive(app.main_bt);
+
     clear();
     printf("--- Bitify ---\n\n");
     printf("[BYE]: See you in space cowboy!\n\n");

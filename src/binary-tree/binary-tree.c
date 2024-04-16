@@ -180,3 +180,41 @@ short bt_print(BT *bt, short strategy) {
 
     bt_print_recursive(bt, bt->root, 0);
 }
+
+short unsigned bt_equal_recursive(BT *bt, BTNode *node_a, BTNode *node_b) {
+    if (!node_a && !node_b) {
+        return 1;
+    }
+
+    if ((!node_a && node_b) || (node_a && !node_b)) {
+        return 0;
+    }
+
+    if (bt->get_node_data_weight(node_a->data) != bt->get_node_data_weight(node_b->data)) {
+        return 0;
+    }
+
+    return bt_equal_recursive(bt, node_a->left, node_b->left) && bt_equal_recursive(bt, node_a->right, node_b->right);
+}
+
+short unsigned bt_equal(BT *bta, BT *btb) {
+    return bt_equal_recursive(bta, bta->root, btb->root);
+}
+
+void bt_free_recursive_inner(BTNode *node) {
+    if (node == NULL) {
+        return;
+    }
+
+    bt_free_recursive_inner(node->left);
+    bt_free_recursive_inner(node->right);
+
+    free(node->data);
+    free(node);
+}
+
+void bt_free_recursive(BT *bt) {
+    bt_free_recursive_inner(bt->root);
+
+    free(bt);
+}
