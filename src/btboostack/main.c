@@ -4,9 +4,9 @@
  * @brief This code is trash
  * @version 0.1
  * @date 2024-04-16
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 
 #include <ctype.h>
@@ -155,7 +155,7 @@ void print_year_of_stack(size_t i, void *data) {
     printf("[%zu]: %d\n", i, current_stack_top_book->year);
 }
 
-void stacks_match_one_or_insert(BT *stacks, Book *book, char *strategy) {
+void stacks_match_one_or_insert(BT *btstacks, Book *book, char *strategy) {
     if (book == NULL) {
         return;
     }
@@ -166,9 +166,9 @@ void stacks_match_one_or_insert(BT *stacks, Book *book, char *strategy) {
         Stack *temp = stack_new(BOOK_LENGTH);
         stack_push(temp, book);
 
-        stack_matching = bt_get_data_by_weight_comparison(stacks, temp);
+        stack_matching = bt_get_data_by_weight_comparison(btstacks, temp);
     } else {
-        stack_matching = bt_get_data_by_weight(stacks, book->year);
+        stack_matching = bt_get_data_by_weight(btstacks, book->year);
     }
 
     if (stack_matching) {
@@ -177,24 +177,23 @@ void stacks_match_one_or_insert(BT *stacks, Book *book, char *strategy) {
     }
 
     Stack *stack = stack_new(BOOK_LENGTH);
-
     stack_push(stack, book);
-    bt_insert_iterative(stacks, stack);
+    bt_insert_iterative(btstacks, stack);
 }
 
-void menu_stack_by(BT *stacks, Stack *box, char *strategy) {
+void menu_stack_by(BT *btstacks, Stack *box, char *strategy) {
     const bool is_genre_stacks = strcmp(strategy, "genre") == 0;
 
     if (is_genre_stacks) {
-        stacks->get_node_data_weight = get_stack_data_weight_genre;
-        stacks->get_data_weight_comparison = get_book_genre_weight_comparison;
+        btstacks->get_node_data_weight = get_stack_data_weight_genre;
+        btstacks->get_data_weight_comparison = get_book_genre_weight_comparison;
     } else {
-        stacks->get_node_data_weight = get_stack_data_weight_year;
-        stacks->get_data_weight_comparison = NULL;
+        btstacks->get_node_data_weight = get_stack_data_weight_year;
+        btstacks->get_data_weight_comparison = NULL;
     }
 
     while (box->top) {
-        stacks_match_one_or_insert(stacks, as_book(box->top->data), strategy);
+        stacks_match_one_or_insert(btstacks, as_book(box->top->data), strategy);
 
         stack_pop(box);
     }
@@ -207,22 +206,22 @@ void menu_stack_by(BT *stacks, Stack *box, char *strategy) {
 
         if (is_genre_stacks) {
             printf("[INFO]: [1] Stack by genre\n\n");
-            bt_foreach_recursive(stacks, print_genre_of_stack);
+            bt_foreach_recursive(btstacks, print_genre_of_stack);
         } else {
             printf("[INFO]: [2] Stack by year\n\n");
-            bt_foreach_recursive(stacks, print_year_of_stack);
+            bt_foreach_recursive(btstacks, print_year_of_stack);
         }
 
-        printf("\n[%zu]: Back to main menu\n\n", stacks->_length);
+        printf("\n[%zu]: Back to main menu\n\n", btstacks->_length);
 
         printf("[INPUT]: Selection: ");
         scanf("%zu", &option);
 
-        if (option == stacks->_length) {
+        if (option == btstacks->_length) {
             break;
         }
 
-        Stack *stack = bt_get_index_recursive(stacks, option);
+        Stack *stack = bt_get_index_recursive(btstacks, option);
 
         clear();
         header();
@@ -234,7 +233,7 @@ void menu_stack_by(BT *stacks, Stack *box, char *strategy) {
             printf("[INFO]: Stack of year: %d\n", as_book(stack->top->data)->year);
         }
 
-        stack_vertical_print((Stack *)bt_get_index_recursive(stacks, option),
+        stack_vertical_print((Stack *)bt_get_index_recursive(btstacks, option),
                              print_book);
 
         printf("\n");
@@ -251,7 +250,7 @@ int main() {
     char res_char = '\0';
 
     while (should_continue) {
-        BT *stacks = bt_new(stack_print, get_stack_data_weight_genre);
+        BT *btstacks = bt_new(stack_print, get_stack_data_weight_genre);
         size_t stacks_length = 0;
 
         unsigned int selected_option = 0;
@@ -288,26 +287,28 @@ int main() {
                 should_continue = res_char == 'y';
                 break;
             case 1:
-                menu_stack_by(stacks, box, "genre");
+                menu_stack_by(btstacks, box, "genre");
                 break;
             case 2:
-                menu_stack_by(stacks, box, "year");
+                menu_stack_by(btstacks, box, "year");
                 break;
             default:
                 break;
         }
 
-        for (int i = 0; i < stacks->_length; i++) {
-            Stack *stack = bt_get_index_recursive(stacks, i);
+        for (int i = 0; i < btstacks->_length; i++) {
+            Stack *stack = bt_get_index_recursive(btstacks, i);
+            int initial_stack_length = stack->length;
+
             stack->should_free_node_data_address = false;
 
-            for (int j = 0; j < stack->length; j++) {
+            for (int j = 0; j < initial_stack_length; j++) {
                 stack_push(box, stack->top->data);
                 stack_pop(stack);
             }
         }
 
-        bt_free_recursive(stacks);
+        bt_free_recursive(btstacks);
     }
 
     stack_free(box);
