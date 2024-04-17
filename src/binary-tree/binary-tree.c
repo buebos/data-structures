@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -21,6 +22,8 @@ typedef struct BTNode {
  */
 typedef unsigned int (*GetDataWeightOperation)(void *data);
 
+typedef int (*GetDataWeightComparation)(void *data_a, void *data_b);
+
 typedef void (*PrintDataOperation)(void *data);
 
 typedef struct BT {
@@ -35,6 +38,8 @@ typedef struct BT {
      */
     GetDataWeightOperation get_node_data_weight;
     PrintDataOperation print_data;
+
+    GetDataWeightComparation get_data_weight_comparison;
 } BT;
 
 BTNode *bt_new_node(void *data) {
@@ -57,19 +62,24 @@ short int bt_insert_iterative(BT *bt, void *data) {
 
     while (current_node != NULL) {
         unsigned int current_weight = bt->get_node_data_weight(current_node->data);
+        bool should_insert_left = data_weight <= current_weight;
 
-        if (data_weight <= current_weight && !current_node->left) {
+        if (bt->get_data_weight_comparison) {
+            should_insert_left = bt->get_data_weight_comparison(data, current_node->data) <= 0;
+        }
+
+        if (should_insert_left && !current_node->left) {
             current_node->left = bt_new_node(data);
             bt->_length += 1;
             return SUCCESS_BT_OPERATION;
         }
-        if (data_weight > current_weight && !current_node->right) {
+        if (!should_insert_left && !current_node->right) {
             current_node->right = bt_new_node(data);
             bt->_length += 1;
             return SUCCESS_BT_OPERATION;
         }
 
-        if (data_weight <= current_weight) {
+        if (should_insert_left) {
             current_node = current_node->left;
         } else {
             current_node = current_node->right;
@@ -141,21 +151,6 @@ void bt_print_recursive(BT *bt, BTNode *current, size_t current_depth) {
 
     bt->print_data(current->data);
 
-    if (current->left) {
-        printf("\n");
-
-        for (size_t i = 0; i < current_depth + 1; i++) {
-            if (i != current_depth) {
-                printf("\t");
-                continue;
-            }
-
-            printf("\t| L = ");
-        }
-
-        bt_print_recursive(bt, current->left, current_depth + 1);
-    }
-
     if (current->right) {
         printf("\n");
 
@@ -169,6 +164,21 @@ void bt_print_recursive(BT *bt, BTNode *current, size_t current_depth) {
         }
 
         bt_print_recursive(bt, current->right, current_depth + 1);
+    }
+
+    if (current->left) {
+        printf("\n");
+
+        for (size_t i = 0; i < current_depth + 1; i++) {
+            if (i != current_depth) {
+                printf("\t");
+                continue;
+            }
+
+            printf("\t| L = ");
+        }
+
+        bt_print_recursive(bt, current->left, current_depth + 1);
     }
 }
 
@@ -190,11 +200,13 @@ short unsigned bt_equal_recursive(BT *bt, BTNode *node_a, BTNode *node_b) {
         return 0;
     }
 
-    if (bt->get_node_data_weight(node_a->data) != bt->get_node_data_weight(node_b->data)) {
+    if (bt->get_node_data_weight(node_a->data) !=
+        bt->get_node_data_weight(node_b->data)) {
         return 0;
     }
 
-    return bt_equal_recursive(bt, node_a->left, node_b->left) && bt_equal_recursive(bt, node_a->right, node_b->right);
+    return bt_equal_recursive(bt, node_a->left, node_b->left) &&
+           bt_equal_recursive(bt, node_a->right, node_b->right);
 }
 
 short unsigned bt_equal(BT *bta, BT *btb) {
@@ -217,4 +229,90 @@ void bt_free_recursive(BT *bt) {
     bt_free_recursive_inner(bt->root);
 
     free(bt);
+}
+
+void *bt_get_data_by_weight(BT *bt, unsigned int data_weight) {
+    BTNode *current_node = bt->root;
+
+    while (current_node != NULL) {
+        unsigned int current_weight = bt->get_node_data_weight(current_node->data);
+
+        if (current_weight == data_weight) {
+            return current_node->data;
+        }
+
+        if (data_weight < current_weight) {
+            current_node = current_node->left;
+        } else {
+            current_node = current_node->right;
+        }
+    }
+
+    return NULL;
+}
+
+void *bt_get_data_by_weight_comparison(BT *bt, void *data) {
+    BTNode *current_node = bt->root;
+
+    while (current_node != NULL) {
+        int comparison = bt->get_data_weight_comparison(data, current_node->data);
+
+        if (comparison == 0) {
+            return current_node->data;
+        }
+
+        if (comparison < 0) {
+            current_node = current_node->left;
+        } else {
+            current_node = current_node->right;
+        }
+    }
+
+    return NULL;
+}
+
+void bt_foreach_recursive_inner(BT *bt, BTNode *current, size_t *count,
+                                void (*callback)(size_t i, void *data)) {
+    if (current == NULL) {
+        return;
+    }
+
+    bt_foreach_recursive_inner(bt, current->left, count, callback);
+
+    callback(*count, current->data);
+    *count += 1;
+
+    bt_foreach_recursive_inner(bt, current->right, count, callback);
+}
+void bt_foreach_recursive(BT *bt, void (*callback)(size_t i, void *data)) {
+    size_t count = 0;
+
+    return bt_foreach_recursive_inner(bt, bt->root, &count, callback);
+}
+
+void *bt_get_index_recursive_inner(BTNode *current, size_t *count,
+                                   size_t target) {
+    if (current == NULL) {
+        return NULL;
+    }
+    void *result = NULL;
+
+    result = bt_get_index_recursive_inner(current->left, count, target);
+
+    if (result) {
+        return result;
+    }
+    if (*count == target) {
+        return current->data;
+    }
+
+    *count += 1;
+
+    return bt_get_index_recursive_inner(current->right, count, target);
+}
+
+void *bt_get_index_recursive(BT *bt, size_t target) {
+    size_t count = 0;
+
+    return bt_get_index_recursive_inner(bt->root, &count, target);
 }
