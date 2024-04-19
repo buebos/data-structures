@@ -46,7 +46,24 @@
     "string.h": "c",
     "queue-array.h": "c",
     "binary-tree.h": "c",
-    "ctype.h": "c"
+    "ctype.h": "c",
+    "trexmap.h": "c",
+    "tokenizer.h": "c",
+    "varmap.h": "c",
+    "algorithm": "c",
+    "optional": "c",
+    "xtr1common": "c",
+    "stack.h": "c",
+    "symbol.h": "c",
+    "math.h": "c",
+    "trex.h": "c",
+    "trex-stack.h": "c",
+    "cmath": "c",
+    "trex-node.h": "c",
+    "trex-parser.h": "c",
+    "operations.h": "c",
+    "components.h": "c",
+    "iterator": "c"
   },
   "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0}"
 }

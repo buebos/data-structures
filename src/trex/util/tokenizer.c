@@ -1,32 +1,22 @@
-#include <ctype.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+/**
+ * @file tokenizer.c
+ * @author Gael Herrera (https://github.com/buebos)
+ * @brief Minimal tokenizer implementation. This is my favorite file from the
+ * project.
+ * @version 0.1
+ * @date 2024-04-18
+ *
+ *
+ * @todo
+ * 1. Get the current index of the token like: tokenizer._input._cursor - strlen(token)
+ * it is kind of buggy and strange when previous ignore chars are before the current
+ * token or delimiter
+ *
+ * 2. Add option to skip over the delimiters as tokens. Maybe it would be better to
+ * skip them by default and add the opposite option to include them as tok_next results
+ */
 
-typedef struct {
-    char **_data;
-    size_t _length;
-} TokStrArray;
-
-typedef struct {
-    char *_data;
-    size_t _cursor;
-    size_t _size;
-} TokReadable;
-
-typedef char *(*TokenizerGetNext)(void);
-
-typedef struct Tokenizer {
-    size_t token_alloc_char_size;
-
-    TokReadable _input;
-
-    TokStrArray _delimiters;
-    TokStrArray _skips;
-
-    TokReadable _token_current;
-} Tokenizer;
+#include "tokenizer.h"
 
 Tokenizer tok_new(char *input, TokStrArray delimiters, TokStrArray skips, size_t token_alloc_char_size) {
     Tokenizer tokenizer = {0};

@@ -20,5 +20,8 @@
   },
   "treeshop": {
     "unix": "gcc src/binary-tree/binary-tree.c src/binary-tree/imp/treeshop.c"
+  },
+  "trex": {
+    "unix": " gcc src/trex/util/tokenizer.c src/trex/util/system/clear.c src/trex/util/operations.c src/trex/core/util/varmap.c src/trex/core/symbol/symbol.c src/trex/core/trex/trex-stack.c src/trex/core/trex/trex.c src/trex/core/trex-parser.c src/trex/components.c src/trex/main.c"
   }
 }

@@ -1,7 +1,11 @@
-#ifndef TOKENIZER_H
-#define TOKENIZER_H
+#ifndef __TOKENIZER_H__
+#define __TOKENIZER_H__
 
-#include <stddef.h>
+#include <ctype.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 typedef struct {
     char **_data;
@@ -14,11 +18,16 @@ typedef struct {
     size_t _size;
 } TokReadable;
 
+typedef char *(*TokenizerGetNext)(void);
+
 typedef struct Tokenizer {
-    size_t token_alloc_chunk_size;
+    size_t token_alloc_char_size;
+
     TokReadable _input;
+
     TokStrArray _delimiters;
     TokStrArray _skips;
+
     TokReadable _token_current;
 } Tokenizer;
 
@@ -28,4 +37,4 @@ char *tok_set_current_token(Tokenizer *tokenizer, char *token_next);
 char *tok_reset_current_token(Tokenizer *tokenizer);
 char *tok_next(Tokenizer *tokenizer);
 
-#endif  // TOKENIZER_H
+#endif  // __TOKENIZER_H__
