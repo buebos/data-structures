@@ -1,6 +1,6 @@
 #include "components.h"
 
-#include "util/system/clear.h"
+#include "../util/system/clear.h"
 
 void ClearTerminal() {
     clear();

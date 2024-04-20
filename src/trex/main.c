@@ -1,4 +1,4 @@
-#include "components.h"
+#include "app/components.h"
 #include "core/trex-parser.h"
 #include "util/operations.h"
 #include "util/tokenizer.h"
