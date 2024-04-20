@@ -6,9 +6,9 @@
  * but I don't have time. Thanks to my 3 followers for supporting me :D.
  * @version 0.1
  * @date 2024-04-19
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 
 #include "trex-parser.h"
@@ -21,7 +21,50 @@ char **operators_map_strings(OperatorArray *operators) {
     return operator_strings;
 }
 
-Trex *trex_parse_from(char *expression, TokStrArray *skip_strings, OperatorArray *operators) {
+bool trex_parser_is_symbol_operand(TrexSymbol *symbol) {
+    return symbol->_type == VARIABLE || symbol->_type == NUMERIC_LITERAL;
+}
+
+bool trex_parser_is_valid_token_sequence(TrexSymbol *prev, TrexSymbol *current, TrexSymbol *next) {
+    if (current->_type == UNDEFINED) {
+        return false;
+    }
+
+    /**
+     * Examples:
+     * 1.   *)
+     * 2.   + )
+     */
+    if (current->_type == OPERATOR && next->_type == CLOSING_BRACE) {
+        return false;
+    }
+
+    /**
+     * Examples:
+     * 1.   a1
+     * 2.   1a
+     * 3.   2 (
+     * 4.   1(
+     * 5.   a(
+     */
+    if (
+        trex_parser_is_symbol_operand(current) &&
+        (trex_parser_is_symbol_operand(next) || next->_type == OPENING_BRACE)
+
+    ) {
+        return false;
+    }
+
+    return true;
+}
+
+bool trex_parser_is_sign_sequence(TrexSymbol *prev, TrexSymbol *current, TrexSymbol *next) {
+    return (!prev->_type || (prev->_type != NUMERIC_LITERAL && prev->_type != VARIABLE)) &&
+           (current->_str[0] == '-') &&
+           (next->_type == NUMERIC_LITERAL || next->_type == VARIABLE);
+}
+
+Trex *trex_parser_parse_from(char *expression, TokStrArray *skip_strings, OperatorArray *operators) {
     Trex *trex = trex_new(expression);
     Tokenizer tokenizer = tok_new(
         expression,
@@ -40,16 +83,7 @@ Trex *trex_parse_from(char *expression, TokStrArray *skip_strings, OperatorArray
     TrexSymbol next = trex_symbol_new(strdup(tok_next(&tokenizer)), operators);
 
     while (token) {
-        if (
-            current._type == UNDEFINED ||
-
-            (prev._type == OPERATOR &&
-             current._type == OPERATOR &&
-             (strcmp(current._str, "-") != 0)) ||
-
-            ((current._type == NUMERIC_LITERAL || current._type == VARIABLE) && next._type == OPENING_BRACE)
-
-        ) {
+        if (!trex_parser_is_valid_token_sequence(&prev, &current, &next)) {
             trex_free(trex);
             free(prev._str);
             free(current._str);
@@ -57,17 +91,13 @@ Trex *trex_parse_from(char *expression, TokStrArray *skip_strings, OperatorArray
             if (next._str) {
                 free(next._str);
             }
+            
 
             return NULL;
         }
 
         /** Nasty trick to acommodate for negative signed values on the expression */
-        if (
-            (!prev._type || (prev._type != NUMERIC_LITERAL && prev._type != VARIABLE)) &&
-            (current._str[0] == '-') &&
-            (next._type == NUMERIC_LITERAL || next._type == VARIABLE)
-
-        ) {
+        if (trex_parser_is_sign_sequence(&prev, &current, &next)) {
             trex_insert(trex, trex_symbol_new("(", operators));
             trex_insert(trex, trex_symbol_new("0", operators));
             trex_insert(trex, current);
@@ -98,6 +128,11 @@ Trex *trex_parse_from(char *expression, TokStrArray *skip_strings, OperatorArray
 
     trex->_root = trex->_operand_stack._top->_trex_node;
     // trex->_root = trex_stack_pop(&trex->_operand_stack);
+
+    if (!trex_is_valid(trex->_root)) {
+        trex_free(trex);
+        return NULL;
+    }
 
     return trex;
 }

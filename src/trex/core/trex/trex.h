@@ -2,6 +2,8 @@
 
 #define __TREX_H__
 
+#include <stdbool.h>
+
 #include "../util/varmap.h"
 #include "trex-node.h"
 #include "trex-stack.h"
@@ -30,5 +32,7 @@ float trex_node_get_result(Trex *trex, TrexNode *node);
 void trex_print_expression(TrexNode *node);
 
 void trex_free(Trex *trex);
+
+bool trex_is_valid(TrexNode *root);
 
 #endif  // __TREX_H__

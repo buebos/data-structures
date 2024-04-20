@@ -75,7 +75,7 @@ void SetExpression(App *app) {
         trex_free(app->trex);
     }
 
-    app->trex = trex_parse_from(expression, app->skips, app->operators);
+    app->trex = trex_parser_parse_from(expression, app->skips, app->operators);
 
     if (app->trex) {
         return;
@@ -144,7 +144,11 @@ void GetResult(App *app) {
     } else {
         float result = trex_get_result(app->trex);
 
-        printf("[INFO]: Result: %.2f\n", result);
+        printf("[INFO]: Result: ");
+
+        trex_print_expression(app->trex->_root);
+
+        printf(" = %f\n", result);
     }
 
     printf("\n");

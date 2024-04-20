@@ -154,3 +154,33 @@ void trex_print_expression(TrexNode *node) {
         printf(")");
     }
 }
+
+bool trex_is_valid(TrexNode *root) {
+    if (root == NULL) {
+        return true;
+    }
+
+    /** Is a brace delimiter */
+    if (root->_symbol._type == OPENING_BRACE || root->_symbol._type == CLOSING_BRACE) {
+        return false;
+    }
+
+    /** Is an operator and leaf of the tree */
+    if (root->_symbol._type == OPERATOR && (!root->left || !root->right)) {
+        return false;
+    }
+
+    /** Is an operand in the leafs of the tree */
+    if (
+        (root->_symbol._type == VARIABLE || root->_symbol._type == NUMERIC_LITERAL) &&
+        (root->left || root->right)
+
+    ) {
+        return false;
+    }
+
+    /**
+     * This called should be optimized automaticaLLy by the compiler, no need to check left result before calling right
+     * */
+    return trex_is_valid(root->left) && trex_is_valid(root->right);
+}
