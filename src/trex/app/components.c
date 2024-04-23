@@ -44,7 +44,7 @@ void PrintVariables(Trex *trex) {
     printf("[VARS]: Variables:\n");
 
     while (node != NULL) {
-        printf("  [%d] %s = %.2f\n", count++, node->key, node->value);
+        printf("  [%zu] %s = %.2f\n", count++, node->key, node->value);
         node = node->next;
     }
 

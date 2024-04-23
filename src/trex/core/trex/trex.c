@@ -89,10 +89,11 @@ float trex_node_get_result(Trex *trex, TrexNode *node) {
             return atof(node->_symbol._str);
         case VARIABLE:
             return trex_varmap_get(&trex->_var_map, node->_symbol._str);
-        case OPERATOR:
+        case OPERATOR: {
             float left_res = trex_node_get_result(trex, node->left);
             float right_res = trex_node_get_result(trex, node->right);
             return node->_symbol._get_operator_result(left_res, right_res);
+        }
         default:
             return 0.0f;
     }

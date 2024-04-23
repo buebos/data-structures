@@ -7,7 +7,7 @@ if [[ "$kernel_release" == *"Microsoft"* || "$kernel_release" == *"microsoft"* ]
 fi
 
 # Read the compile_commands.json file and extract the "id" values into an array
-readarray -t ids < <(sed -n 's/.*"id":\s*"\([^"]*\)".*/\1/p' compile_commands.json)
+ids=($(sed -n 's/.*"id": "\(.*\)".*/\1/p' compile_commands.json))
 
 # Check if an id parameter is provided
 if [ -z "$1" ]; then

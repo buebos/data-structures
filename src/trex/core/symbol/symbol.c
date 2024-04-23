@@ -33,7 +33,7 @@ TrexSymbol trex_symbol_new(char *value, OperatorArray *operators) {
     }
 
     while ((c = value[count++])) {
-        enum SymbolType { UNDEFINED } current_char_type;
+        enum TrexSymbolType current_char_type = UNDEFINED;
 
         if (isdigit(c) || c == '.') {
             current_char_type = NUMERIC_LITERAL;

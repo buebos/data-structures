@@ -34,7 +34,7 @@ typedef struct Tokenizer {
 Tokenizer tok_new(char *input, TokStrArray delimiters, TokStrArray skips, size_t token_alloc_chunk_size);
 char *tok_match_incoming_str_from(Tokenizer *tokenizer, TokStrArray str_arr);
 char *tok_set_current_token(Tokenizer *tokenizer, char *token_next);
-char *tok_reset_current_token(Tokenizer *tokenizer);
+void tok_reset_current_token(Tokenizer *tokenizer);
 char *tok_next(Tokenizer *tokenizer);
 
 #endif  // __TOKENIZER_H__

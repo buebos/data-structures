@@ -90,7 +90,7 @@ char *tok_set_current_token(Tokenizer *tokenizer, char *token_next) {
     return token->_data;
 }
 
-char *tok_reset_current_token(Tokenizer *tokenizer) {
+void tok_reset_current_token(Tokenizer *tokenizer) {
     TokReadable *token = &tokenizer->_token_current;
 
     token->_data = realloc(token->_data, tokenizer->token_alloc_char_size * sizeof(char));
