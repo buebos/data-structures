@@ -23,4 +23,6 @@ typedef struct {
 
 void MainMenu(App *app);
 
+void Logout();
+
 #endif  // !__TREX_COMPONENTS_H__

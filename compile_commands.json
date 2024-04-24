@@ -10,7 +10,7 @@
     "id": "trex",
 
     "directory": ".",
-    "command": "gcc src/trex/util/tokenizer.c src/trex/util/system/clear.c src/trex/util/operations.c src/trex/core/util/varmap.c src/trex/core/symbol/symbol.c src/trex/core/trex/trex-stack.c src/trex/core/trex/trex.c src/trex/core/trex-parser.c src/trex/app/components.c src/trex/main.c -o build/trex",
+    "command": "gcc src/trex/util/tokenizer.c src/trex/util/system/clear.c src/trex/util/operations.c src/trex/core/util/varmap.c src/trex/core/symbol/symbol.c src/trex/core/trex/trex-stack.c src/trex/core/trex/trex.c src/trex/core/trex-parser.c src/trex/core/trex/util/trex-print.c src/trex/app/components.c src/trex/main.c -o build/trex",
     "file": "./src/trex/main.c"
   }
 ]

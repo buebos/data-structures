@@ -1,5 +1,6 @@
 #include "components.h"
 
+#include "../core/trex/util/trex-print.h"
 #include "../util/system/clear.h"
 
 void ClearTerminal() {
@@ -15,7 +16,14 @@ void KeyToContinue(App *app) {
 
 void PrintHeader() {
     printf("     Expression Parser\n");
+
     printf("===========================\n\n");
+}
+
+void Logout() {
+    ClearTerminal();
+    PrintHeader();
+    printf("[BYE]: See you in space cowboy!\n");
 }
 
 void PrintExpression(Trex *trex) {
@@ -51,7 +59,7 @@ void PrintVariables(Trex *trex) {
     printf("\n");
 }
 
-void SetExpression(App *app) {
+void ExpressionInput(App *app) {
     ClearTerminal();
     PrintHeader();
     PrintExpression(app->trex);
@@ -86,7 +94,7 @@ void SetExpression(App *app) {
     KeyToContinue(app);
 }
 
-void SetVariables(App *app) {
+void VariablesInput(App *app) {
     char var_name[MAX_VAR_LEN];
     float var_value;
 
@@ -133,7 +141,7 @@ void SetVariables(App *app) {
     }
 }
 
-void GetResult(App *app) {
+void TrexResult(App *app) {
     ClearTerminal();
     PrintHeader();
     PrintExpression(app->trex);
@@ -156,49 +164,65 @@ void GetResult(App *app) {
     KeyToContinue(app);
 }
 
+void ExpressionTreeGraph(App *app) {
+    ClearTerminal();
+    PrintHeader();
+    PrintExpression(app->trex);
+
+    printf("\n");
+
+    if (!app->trex) {
+        printf("[ERROR]: There is no expression tree\n");
+    } else {
+        trex_print_recursive(app->trex->_root, 0);
+    }
+
+    printf("\n");
+    printf("\n");
+
+    KeyToContinue(app);
+}
+
 void MainMenu(App *app) {
     int choice = 0;
-
-    while (app->should_run) {
-        ClearTerminal();
-        PrintHeader();
-
-        PrintExpression(app->trex);
-        PrintVariables(app->trex);
-
-        printf("[INFO]: Choose an option:\n\n");
-
-        printf("[1]. Set expression\n");
-        printf("[2]. Set variables\n");
-        printf("[3]. Get result\n");
-        printf("[4]. Exit\n\n");
-
-        printf("[INPUT]: ");
-        scanf("%d", &choice);
-
-        getchar();  // Consume newline character
-
-        switch (choice) {
-            case 1:
-                SetExpression(app);
-                break;
-            case 2:
-                SetVariables(app);
-                break;
-            case 3:
-                GetResult(app);
-                break;
-            case 4:
-                app->should_run = 0;
-                break;
-            default:
-                printf("[ERROR]: Invalid choice.\n");
-                break;
-        }
-    }
 
     ClearTerminal();
     PrintHeader();
 
-    printf("[BYE]: See you in space cowboy!\n");
+    PrintExpression(app->trex);
+    PrintVariables(app->trex);
+
+    printf("[INFO]: Choose an option:\n\n");
+
+    printf("[1]. Set expression\n");
+    printf("[2]. Set variables\n");
+    printf("[3]. Get result\n");
+    printf("[4]. View expression tree\n");
+    printf("[5]. Exit\n\n");
+
+    printf("[INPUT]: ");
+    scanf("%d", &choice);
+
+    getchar();
+
+    switch (choice) {
+        case 1:
+            ExpressionInput(app);
+            break;
+        case 2:
+            VariablesInput(app);
+            break;
+        case 3:
+            TrexResult(app);
+            break;
+        case 4:
+            ExpressionTreeGraph(app);
+            break;
+        case 5:
+            app->should_run = 0;
+            break;
+        default:
+            printf("[ERROR]: Invalid choice.\n");
+            break;
+    }
 }

@@ -6,6 +6,7 @@
 int main(void) {
     App app = {0};
 
+    char *skips[] = {" ", "\t", "\n"};
     Operator operators[] = {
         (Operator){._str = "(", ._get_result = NULL},
         (Operator){._str = ")", ._get_result = NULL},
@@ -15,15 +16,14 @@ int main(void) {
         (Operator){._str = "-", ._get_result = trex_substract},
         (Operator){._str = "+", ._get_result = trex_add},
     };
-    char *skips[] = {" ", "\t", "\n"};
 
-    OperatorArray operator_array = {
-        ._data = operators,
-        ._length = sizeof(operators) / sizeof(Operator),
-    };
     TokStrArray skip_str_array = {
         ._data = skips,
         ._length = sizeof(skips) / sizeof(char *),
+    };
+    OperatorArray operator_array = {
+        ._data = operators,
+        ._length = sizeof(operators) / sizeof(Operator),
     };
 
     app.should_run = 1;
@@ -31,11 +31,15 @@ int main(void) {
     app.skips = &skip_str_array;
     app.trex = NULL;
 
-    MainMenu(&app);
+    while (app.should_run) {
+        MainMenu(&app);
+    }
 
     if (app.trex != NULL) {
         trex_free(app.trex);
     }
+
+    Logout();
 
     return 0;
 }
