@@ -60,24 +60,24 @@ int main() {
                 int value = 0;
 
                 if (queue->length == queue_capacity) {
-                    printf("[ERROR]: Cannot enqueue. Queue is at full capacity: %zu\n", queue->capacity);
+                    printf("[ERROR]: Cannot queue_enqueue. Queue is at full capacity: %zu\n", queue->capacity);
                     break;
                 }
 
-                printf("[INFO]: Enter the element to enqueue: ");
+                printf("[INFO]: Enter the element to queue_enqueue: ");
                 scanf("%d", &value);
-                enqueue(queue, integer(value));
+                queue_enqueue(queue, integer(value));
 
                 chmenu("[MENU]: Enqueue", queue);
 
                 break;
             case 1:
                 if (queue->length > 0) {
-                    dequeue(queue);
+                    queue_dequeue(queue);
                     chmenu("[MENU]: Dequeue", queue);
                 } else {
                     chmenu("[MENU]: Dequeue", queue);
-                    printf("[ERROR]: Queue is empty, cannot dequeue.\n");
+                    printf("[ERROR]: Queue is empty, cannot queue_dequeue.\n");
                 }
 
                 break;

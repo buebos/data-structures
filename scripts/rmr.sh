@@ -1,0 +1,1 @@
+dir="scripts";find $dir -type f -exec sed -i "s/\r$//" {} \;;

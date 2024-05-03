@@ -64,7 +64,10 @@
     "operations.h": "c",
     "components.h": "c",
     "iterator": "c",
-    "trex-print.h": "c"
+    "trex-print.h": "c",
+    "string": "c",
+    "stack": "c",
+    "xiosbase": "c"
   },
   "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0}"
 }
