@@ -41,7 +41,7 @@ void file_print(void *file_data) {
 void file_queues_print(void *queue_data, size_t _index, void *_ctx) {
     Queue *queue = (Queue *)queue_data;
 
-    cres_log(LOG_INFO, "Queue page size: %zu", ((File *)queue->front->data)->page_size);
+    printlog(LOG_INFO, "Queue page size: %zu", ((File *)queue->front->data)->page_size);
     queue_print(queue, file_print);
 
     printf("\n");
@@ -124,7 +124,7 @@ int main(int argc, char **argv) {
                 TemplateReset();
 
                 if (!file_queues->front) {
-                    cres_log(LOG_INFO, "(Queue) { <EMPTY> } ");
+                    printlog(LOG_INFO, "(Queue) { <EMPTY> } ");
                 } else {
                     queue_foreach(file_queues, file_queues_print, NULL);
                 }
@@ -174,7 +174,7 @@ int main(int argc, char **argv) {
                 file_target[FILE_NAME_LEN - 1] = 0;
 
                 if (!file_queues->front) {
-                    cres_log(LOG_INFO, "(Queue) { <EMPTY> } ");
+                    printlog(LOG_INFO, "(Queue) { <EMPTY> } ");
                 } else {
                     queue_foreach(file_queues, file_queues_print, NULL);
                 }
@@ -197,7 +197,7 @@ int main(int argc, char **argv) {
                 TemplateReset();
 
                 if (!file_queues->front) {
-                    cres_log(LOG_ERROR, "No file queues in line");
+                    printlog(LOG_ERROR, "No file queues in line");
                     printf("\n");
                     KeyToContinue();
                     break;
@@ -206,7 +206,7 @@ int main(int argc, char **argv) {
                 Queue *file_queue = file_queues->front->data;
 
                 if (!file_queue->front) {
-                    cres_log(LOG_ERROR, "No files in line");
+                    printlog(LOG_ERROR, "No files in line");
                     printf("\n");
                     KeyToContinue();
                     break;
@@ -214,7 +214,7 @@ int main(int argc, char **argv) {
 
                 File *file = (File *)file_queue->front->data;
 
-                cres_log(LOG_INFO, "Proccesing: (File){ name: %s, page_size: %zu }", file->name, file->page_size);
+                printlog(LOG_INFO, "Proccesing: (File){ name: %s, page_size: %zu }", file->name, file->page_size);
                 queue_dequeue(file_queue);
 
                 if (!file_queue->front) {
@@ -229,7 +229,7 @@ int main(int argc, char **argv) {
                 app.should_run = false;
                 break;
             default:
-                cres_log(LOG_ERROR, "Invalid selection");
+                printlog(LOG_ERROR, "Invalid selection");
                 KeyToContinue();
                 break;
         }
@@ -241,7 +241,7 @@ int main(int argc, char **argv) {
     queue_free(&file_queues);
 
     printf("\n");
-    cres_log(LOG_INFO, "See you in space cowboy!");
+    printlog(LOG_INFO, "See you in space cowboy!");
 
     return 0;
 }

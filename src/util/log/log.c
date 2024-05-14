@@ -1,6 +1,6 @@
 #include "log.h"
 
-void cres_log(LogLevel log_level, char* msg, ...) {
+void printlog(LogLevel log_level, char* msg, ...) {
     va_list params;
 
     char log_prefix[16] = {0};

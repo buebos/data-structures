@@ -16,6 +16,6 @@ typedef enum LogLevel {
     LOG_ERROR
 } LogLevel;
 
-void cres_log(LogLevel log_level, char* msg, ...);
+void printlog(LogLevel log_level, char* msg, ...);
 
 #endif /** __CRES_LOG_H__ */
