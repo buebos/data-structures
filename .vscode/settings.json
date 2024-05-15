@@ -67,7 +67,10 @@
     "trex-print.h": "c",
     "string": "c",
     "stack": "c",
-    "xiosbase": "c"
+    "xiosbase": "c",
+    "heap.h": "c",
+    "stddef.h": "c",
+    "int.h": "c"
   },
   "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0}"
 }

@@ -19,5 +19,12 @@
     "directory": ".",
     "command": "gcc src/util/log/log.c src/util/clear.c src/stack/stack.c src/queue/imp/printer.c -o build/printer",
     "file": "./src/queue/imp/printer.c"
+  },
+  {
+    "id": "heapter",
+
+    "directory": ".",
+    "command": "gcc src/util/int.c src/heap/heap.c src/heap/imp/heapter.c -o build/heapter",
+    "file": "./src/heap/imp/heapter.c"
   }
 ]
