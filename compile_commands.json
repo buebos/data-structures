@@ -24,7 +24,7 @@
     "id": "heapter",
 
     "directory": ".",
-    "command": "gcc src/util/int.c src/heap/heap.c src/heap/imp/heapter.c -o build/heapter",
+    "command": "gcc src/util/log/log.c src/util/clear.c src/util/int.c src/heap/heap.c src/heap/imp/heapter.c -o build/heapter",
     "file": "./src/heap/imp/heapter.c"
   }
 ]

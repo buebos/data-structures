@@ -7,6 +7,6 @@ int *integer(int value) {
     return addr;
 }
 
-void print_integer(void *addr) {
+void integer_print(void *addr) {
     printf("%d", *((int *)addr));
 }

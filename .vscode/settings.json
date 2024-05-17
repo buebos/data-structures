@@ -70,7 +70,10 @@
     "xiosbase": "c",
     "heap.h": "c",
     "stddef.h": "c",
-    "int.h": "c"
+    "int.h": "c",
+    "locale": "c",
+    "log.h": "c",
+    "colors.h": "c"
   },
   "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0}"
 }

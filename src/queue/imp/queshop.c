@@ -22,7 +22,7 @@ void chmenu(char* title, Queue* queue) {
     printf("%s\n\n", title);
 
     printf("[QUEUE]: ");
-    queue_print(queue, print_integer);
+    queue_print(queue, integer_print);
     printf("\n");
 }
 

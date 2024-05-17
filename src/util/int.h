@@ -6,6 +6,6 @@
 #include <stdlib.h>
 
 int *integer(int value);
-void print_integer(void *addr);
+void integer_print(void *addr);
 
 #endif  // !__INTEGER__

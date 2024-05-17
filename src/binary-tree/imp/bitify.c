@@ -20,7 +20,7 @@ int *integer(int value) {
 
 unsigned int get_integer_weight(void *address) { return *((int *)address); }
 
-void print_integer(void *address) { printf("%d\n", *((int *)address)); }
+void integer_print(void *address) { printf("%d\n", *((int *)address)); }
 
 void InputToContinue(App *app) {
     printf("\n\n[INPUT]: Type any number to continue: ");
@@ -30,7 +30,7 @@ void InputToContinue(App *app) {
 
 int main(void) {
     App app = {0};
-    app.main_bt = bt_new(print_integer, get_integer_weight);
+    app.main_bt = bt_new(integer_print, get_integer_weight);
     app.should_run = true;
     app.current_menu = 0;
 

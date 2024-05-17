@@ -10,10 +10,10 @@ int *integer(int value) {
 
 unsigned int get_integer_weight(void *address) { return *((int *)address); }
 
-void print_integer(void *address) { printf("%d\n", *((int *)address)); }
+void integer_print(void *address) { printf("%d\n", *((int *)address)); }
 
 int main() {
-    BT *bts[3] = {bt_new(print_integer, get_integer_weight), bt_new(print_integer, get_integer_weight), bt_new(print_integer, get_integer_weight)};
+    BT *bts[3] = {bt_new(integer_print, get_integer_weight), bt_new(integer_print, get_integer_weight), bt_new(integer_print, get_integer_weight)};
 
     for (int i = 0; i < 3; i++) {
         if (i == 2) {
