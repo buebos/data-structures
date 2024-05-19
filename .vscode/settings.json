@@ -73,7 +73,13 @@
     "int.h": "c",
     "locale": "c",
     "log.h": "c",
-    "colors.h": "c"
+    "colors.h": "c",
+    "unordered_map": "c",
+    "hashtable.h": "c",
+    "assert.h": "c",
+    "debug.h": "c",
+    "xlocmes": "c",
+    "xloctime": "c"
   },
   "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0}"
 }

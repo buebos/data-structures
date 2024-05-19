@@ -93,7 +93,7 @@ void TemplateReset() {
 void KeyToContinue() {
     char holder = 0;
 
-    printf("[INPUT]: Type any key to continue: ");
+    printf("\n" AC_PURPLE "[INPUT]" AC_RESET ": Type any key to continue: ");
     scanf(" %c", &holder);
 }
 

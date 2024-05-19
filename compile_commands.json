@@ -26,5 +26,12 @@
     "directory": ".",
     "command": "gcc src/util/log/log.c src/util/clear.c src/util/int.c src/heap/heap.c src/heap/imp/heapter.c -o build/heapter",
     "file": "./src/heap/imp/heapter.c"
+  },
+  {
+    "id": "hashflix",
+
+    "directory": ".",
+    "command": "gcc -o build/hashflix src/hashtable/hashtable.c src/util/clear.c src/util/int.c src/util/log/log.c src/hashtable/hashflix.c",
+    "file": "./src/hashtable/hashflix.c"
   }
 ]
