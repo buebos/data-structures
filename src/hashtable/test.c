@@ -124,9 +124,9 @@ void test_hashtable_resize() {
     assert(hashtable_should_resize(&table));
 
     table.size = 13;
-    table.capacity = table.size * HASHTABLE_RESIZE_FACTOR;
+    table.capacity = table.size * HASHTABLE_DEFAULT_RESIZE_FACTOR;
 
-    printdev("table.size * HASHTABLE_RESIZE_FACTOR = %zu", table.capacity);
+    printdev("table.size * HASHTABLE_DEFAULT_RESIZE_FACTOR = %zu", table.capacity);
 
     assert(!hashtable_should_resize(&table));
 

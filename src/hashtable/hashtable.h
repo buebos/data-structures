@@ -17,11 +17,8 @@
 #define HashTable_KeyRef void *
 #endif  // !HashTable_KeyRef
 
-#define HASHTABLE_RESIZE_BASE 2
-#define HASHTABLE_RESIZE_FACTOR 3 / 2
-
-#define HASHTABLE_RESIZE_LOWER_THRESH 1 / 4
-#define HASHTABLE_RESIZE_UPPER_THRESH 3 / 4
+#define HASHTABLE_DEFAULT_RESIZE_FACTOR 1.5f
+#define HASHTABLE_RESIZE_OFFSET 4
 
 typedef struct HashTable HashTable;
 
@@ -53,16 +50,21 @@ typedef enum HashTable_PrintFormat {
     HASHTABLE_PRINT_FLAT,
 } HashTable_PrintFormat;
 
-typedef struct HashTable_Item {
+typedef struct HashTable_Entry {
     HashTable_KeyRef key;
     HashTable_ValRef value;
-    struct HashTable_Item *next;
-} HashTable_Item;
+    struct HashTable_Entry *next;
+} HashTable_Entry;
 
 typedef struct HashTable {
     size_t size;
-    size_t initial_capacity;
+
+    size_t capacity_initial;
     size_t capacity;
+
+    float resize_factor;
+    float lower_load_factor;
+    float upper_load_factor;
 
     HashTable_KeyType key_type;
     bool key_should_free;
@@ -72,11 +74,16 @@ typedef struct HashTable {
     HashTable_HashFn hash;
     HashTable_PrintItemFn print;
 
-    HashTable_Item **items;
+    HashTable_Entry **items;
 } HashTable;
 
 HashTable hashtable_new(
     size_t capacity,
+
+    float resize_factor,
+    float upper_load_factor,
+    float lower_load_factor,
+
     HashTable_HashFn hash,
     HashTable_PrintItemFn print,
     HashTable_KeyType key_type,
@@ -91,7 +98,8 @@ HashTable_DelStatus hashtable_delete(HashTable *table, HashTable_KeyRef key);
 
 HashTable_ValRef hashtable_get(HashTable *table, HashTable_KeyRef key);
 
-bool hashtable_should_resize(HashTable *table);
+bool hashtable_should_resize_grow(HashTable *table);
+bool hashtable_should_resize_shrink(HashTable *table);
 
 void hashtable_resize(HashTable *table);
 

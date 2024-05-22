@@ -38,16 +38,19 @@ bool hashtable_key_is_match(HashTable *table, HashTable_KeyRef a, HashTable_KeyR
     }
 }
 
-bool hashtable_should_resize(HashTable *table) {
+bool hashtable_should_resize_grow(HashTable *table) {
     if (!table->capacity) {
         return false;
     }
 
-    return (
-        (table->capacity - table->size < table->capacity * HASHTABLE_RESIZE_LOWER_THRESH) ||
-        (table->capacity - table->size > table->capacity * HASHTABLE_RESIZE_UPPER_THRESH)
+    return table->size > table->capacity * table->upper_load_factor;
+}
+bool hashtable_should_resize_shrink(HashTable *table) {
+    if (!table->capacity) {
+        return false;
+    }
 
-    );
+    return table->size < table->capacity * table->lower_load_factor;
 }
 
 size_t hashtable_hash_default(HashTable *table, HashTable_KeyRef key) {
@@ -76,6 +79,11 @@ size_t hashtable_hash_default(HashTable *table, HashTable_KeyRef key) {
 
 HashTable hashtable_new(
     size_t capacity,
+
+    float resize_factor,
+    float lower_load_factor,
+    float upper_load_factor,
+
     HashTable_HashFn hash,
     HashTable_PrintItemFn print,
     HashTable_KeyType key_type,
@@ -83,11 +91,15 @@ HashTable hashtable_new(
     bool value_should_free
 
 ) {
-    return (HashTable){
+    HashTable table = {
         .size = 0,
-        .initial_capacity = capacity,
+        .capacity_initial = capacity,
 
         .capacity = capacity,
+
+        .resize_factor = resize_factor,
+        .lower_load_factor = lower_load_factor,
+        .upper_load_factor = upper_load_factor,
 
         .key_type = key_type,
         .key_should_free = key_should_free,
@@ -98,12 +110,22 @@ HashTable hashtable_new(
 
         .hash = hash ? hash : hashtable_hash_default,
 
-        .items = calloc(capacity, sizeof(HashTable_Item *)),
+        .items = calloc(capacity, sizeof(HashTable_Entry *)),
     };
+
+    if (
+        hashtable_should_resize_grow(&table) ||
+        hashtable_should_resize_shrink(&table)
+
+    ) {
+        hashtable_resize(&table);
+    }
+
+    return table;
 }
 
-HashTable_Item *hashtable_item_alloc(HashTable_KeyRef key, HashTable_ValRef value) {
-    HashTable_Item *item = calloc(1, sizeof(HashTable_Item));
+HashTable_Entry *hashtable_item_alloc(HashTable_KeyRef key, HashTable_ValRef value) {
+    HashTable_Entry *item = calloc(1, sizeof(HashTable_Entry));
 
     item->key = key;
     item->value = value;
@@ -112,8 +134,8 @@ HashTable_Item *hashtable_item_alloc(HashTable_KeyRef key, HashTable_ValRef valu
 
 HashTable_SetStatus hashtable_set(HashTable *table, HashTable_KeyRef key, HashTable_ValRef value) {
     if (!table->items || !table->capacity) {
-        table->items = calloc(1, sizeof(HashTable_Item *));
-        table->capacity = 1;
+        table->items = calloc(table->resize_factor, sizeof(HashTable_Entry *));
+        table->capacity = table->resize_factor;
     }
 
     size_t index = table->hash(table, key);
@@ -122,7 +144,7 @@ HashTable_SetStatus hashtable_set(HashTable *table, HashTable_KeyRef key, HashTa
         table->items[index] = hashtable_item_alloc(key, value);
         table->size += 1;
 
-        if (hashtable_should_resize(table)) {
+        if (hashtable_should_resize_grow(table)) {
             hashtable_resize(table);
         }
 
@@ -136,8 +158,8 @@ HashTable_SetStatus hashtable_set(HashTable *table, HashTable_KeyRef key, HashTa
         return HASHTABLE_SET_INIT;
     }
 
-    HashTable_Item *prev = NULL;
-    HashTable_Item *item = table->items[index];
+    HashTable_Entry *prev = NULL;
+    HashTable_Entry *item = table->items[index];
 
     while (item) {
         if (hashtable_key_is_match(table, item->key, key)) {
@@ -169,7 +191,7 @@ HashTable_SetStatus hashtable_set(HashTable *table, HashTable_KeyRef key, HashTa
     prev->next = hashtable_item_alloc(key, value);
     table->size += 1;
 
-    if (hashtable_should_resize(table)) {
+    if (hashtable_should_resize_grow(table)) {
         hashtable_resize(table);
     }
 
@@ -194,8 +216,8 @@ HashTable_DelStatus hashtable_delete(HashTable *table, HashTable_KeyRef key) {
         return HASHTABLE_DEL_NOT_FOUND;
     }
 
-    HashTable_Item *prev = NULL;
-    HashTable_Item *item = table->items[index];
+    HashTable_Entry *prev = NULL;
+    HashTable_Entry *item = table->items[index];
 
     while (item) {
         if (hashtable_key_is_match(table, item->key, key)) {
@@ -224,7 +246,7 @@ HashTable_DelStatus hashtable_delete(HashTable *table, HashTable_KeyRef key) {
 
             table->size -= 1;
 
-            if (hashtable_should_resize(table)) {
+            if (hashtable_should_resize_shrink(table)) {
                 hashtable_resize(table);
             }
 
@@ -244,7 +266,7 @@ HashTable_ValRef hashtable_get(HashTable *table, HashTable_KeyRef key) {
     }
 
     size_t index = table->hash(table, key);
-    HashTable_Item *item = table->items[index];
+    HashTable_Entry *item = table->items[index];
 
     while (item) {
         if (hashtable_key_is_match(table, item->key, key)) {
@@ -258,32 +280,32 @@ HashTable_ValRef hashtable_get(HashTable *table, HashTable_KeyRef key) {
 }
 
 void hashtable_resize(HashTable *table) {
-    size_t size_prev = table->size;
+    size_t size_initial = table->size;
 
     size_t capacity_prev = table->capacity;
-    HashTable_Item **items_prev = table->items;
+    HashTable_Entry **items_prev = table->items;
 
     /**
      * Updating the capacity first so the hashing algorithm
      * gets the correct data.
      */
-    table->capacity = size_prev * HASHTABLE_RESIZE_FACTOR;
-    table->items = calloc(table->capacity, sizeof(HashTable_Item *));
+    table->capacity = table->size / table->upper_load_factor + HASHTABLE_RESIZE_OFFSET;
+    table->items = calloc(table->capacity, sizeof(HashTable_Entry *));
 
-    if (!size_prev) {
+    if (!size_initial) {
         return;
     }
 
-    printdev("Resizing hash table");
+    printdev("Resizing hash table: %zu -> %zu\n", capacity_prev, table->capacity);
 
     for (size_t i = 0; i < capacity_prev; i++) {
-        HashTable_Item *item = items_prev[i];
+        HashTable_Entry *item = items_prev[i];
 
         if (!item) {
             continue;
         }
 
-        HashTable_Item *prev = NULL;
+        HashTable_Entry *prev = NULL;
 
         while (item) {
             if (prev) {
@@ -291,7 +313,7 @@ void hashtable_resize(HashTable *table) {
             }
 
             hashtable_set(table, item->key, item->value);
-            table->size = size_prev;
+            table->size = size_initial;
 
             prev = item;
             item = item->next;
@@ -314,7 +336,7 @@ void hashtable_print(HashTable *table, HashTable_PrintFormat format) {
     printf("(HashTable) {");
 
     for (size_t i = 0; i < table->capacity; i++) {
-        HashTable_Item *item = table->items[i];
+        HashTable_Entry *item = table->items[i];
 
         if (!item) {
             continue;
@@ -349,7 +371,7 @@ void hashtable_empty(HashTable *table) {
     }
 
     for (size_t i = 0; i < table->capacity; i++) {
-        HashTable_Item *item = table->items[i];
+        HashTable_Entry *item = table->items[i];
 
         if (!item) {
             continue;

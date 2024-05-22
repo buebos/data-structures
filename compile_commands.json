@@ -31,7 +31,7 @@
     "id": "hashflix",
 
     "directory": ".",
-    "command": "gcc -o build/hashflix src/hashtable/hashtable.c src/util/clear.c src/util/int.c src/util/log/log.c src/hashtable/hashflix.c",
+    "command": "gcc -o build/hashflix src/hashtable/hashtable.c src/hashtable/hashlist.c src/linked-list/linked-list.c src/util/clear.c src/util/int.c src/util/log/log.c src/hashtable/hashflix.c",
     "file": "./src/hashtable/hashflix.c"
   }
 ]

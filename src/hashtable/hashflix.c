@@ -3,24 +3,30 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../linked-list/linked-list.h"
 #include "../util/clear.h"
+#include "../util/int.h"
 #include "../util/log/colors.h"
 #include "../util/log/log.h"
+#include "hashlist.h"
 #include "hashtable.h"
 
-#define MAX_MOVIE_NAME_LENGTH 128
-#define APP_MAX_INPUT_LEN MAX_MOVIE_NAME_LENGTH
-#define MAX_MOVIES 200
+#define APP_MAX_STR_LEN 128
+#define APP_MOVIES_INITIAL_LEN 105
+
+#define APP_HASHTABLE_INITIAL_LEN_BASE 200
+#define APP_HASHTABLE_LOWER_LOAD_FACTOR 0.10f
+#define APP_HASHTABLE_UPPER_LOAD_FACTOR 0.25f
 
 typedef struct {
     int id;
-    char name[MAX_MOVIE_NAME_LENGTH];
+    char name[APP_MAX_STR_LEN];
     int year;
     float rating;
 } Movie;
 
 typedef struct {
-    char input[APP_MAX_INPUT_LEN];
+    char input[APP_MAX_STR_LEN];
     int choice;
 
     bool should_run;
@@ -29,15 +35,116 @@ typedef struct {
 } App;
 
 void KeyToContinue();
-void initialize_hash_tables(HashTable *table_id, HashTable *table_name) {
-    Movie initial_movies[] = {
-        {1, "The Shawshank Redemption", 1994, 9.3},
-        {2, "The Godfather", 1972, 9.2},
-        {3, "The Dark Knight", 2008, 9.0},
-        {4, "The Lord of the Rings: The Return of the King", 2003, 8.9},
-        {5, "Pulp Fiction", 1994, 8.9},
-        {6, "Schindler's List", 1993, 8.9},
-    };
+void initialize_hash_tables(HashTable *table_id, HashList *table_name) {
+    Movie initial_movies[] =
+        {
+            {1, "Blade Runner 2049\0", 2017, 80},
+            {2, "Interstellar\0", 2014, 87},
+            {3, "Mad Max: Fury Road\0", 2015, 81},
+            {4, "Children of Men\0", 2006, 79},
+            {5, "Inception\0", 2010, 88},
+            {6, "Tenet\0", 2020, 73},
+            {7, "Once Upon a Time... In Hollywood\0", 2019, 76},
+            {8, "Inglourious Basterds\0", 2009, 84},
+            {9, "The Lord of the Rings: The Return of the King\0", 2003, 90},
+            {10, "The Wolf of Wall Street\0", 2013, 82},
+            {11, "Disturbia\0", 2007, 68},
+            {12, "Dunkirk\0", 2017, 78},
+            {13, "Troy\0", 2004, 73},
+            {14, "The Dark Knight\0", 2008, 90},
+            {15, "Forrest Gump\0", 1994, 88},
+            {16, "Fight Club\0", 1999, 88},
+            {17, "Star Wars: Episode V - Empire Strikes Back\0", 1980, 87},
+            {18, "The Silence of the Lamps\0", 1991, 86},
+            {19, "Saving Private Ryan\0", 1998, 86},
+            {20, "The Departed\0", 2006, 85},
+            {21, "Whiplash\0", 2014, 85},
+            {22, "Spider-Man: Into the Spider-Verse\0", 2018, 85},
+            {23, "Avengers: Infinity War\0", 2018, 84},
+            {24, "Django Unchained\0", 2012, 85},
+            {25, "The Ministry of Ungentlemanly Warfare\0", 2024, 73},
+            {26, "Godzilla x Kong: The New Empire\0", 2024, 65},
+            {27, "Monkey Man\0", 2024, 71},
+            {28, "Road House\0", 2024, 62},
+            {29, "Rebel Moon - Part Two: The Scargiver\0", 2024, 52},
+            {30, "Wish\0", 2023, 56},
+            {31, "Anyone But You\0", 2023, 62},
+            {32, "The Fall Guy\0", 2024, 74},
+            {33, "The Bricklayer\0", 2023, 51},
+            {34, "Anatomy of a Fall\0", 2023, 77},
+            {35, "Hit man\0", 2023, 77},
+            {36, "Glass\0", 2019, 66},
+            {37, "Barbie\0", 2023, 68},
+            {38, "Stolen\0", 2024, 56},
+            {39, "Madame Web\0", 2024, 38},
+            {40, "Joker\0", 2019, 84},
+            {41, "The Shawshank Redemption\0", 1994, 93},
+            {42, "Pulp Fiction\0", 1994, 92},
+            {43, "Titanic\0", 1997, 89},
+            {44, "The Matrix\0", 1999, 87},
+            {45, "The Sixth Sense\0", 1999, 85},
+            {46, "Gladiator\0", 2000, 86},
+            {47, "Memento\0", 2000, 85},
+            {48, "The Lord of the Rings: The Fellowship of the Ring\0", 2001, 88},
+            {49, "A Beautiful Mind\0", 2001, 86},
+            {50, "Spirited Away\0", 2001, 89},
+            {51, "The Lord of the Rings: The Two Towers\0", 2002, 89},
+            {52, "Finding Nemo\0", 2003, 90},
+            {53, "The Incredibles\0", 2004, 89},
+            {54, "Eternal Sunshine of the Spotless Mind\0", 2004, 88},
+            {55, "Million Dollar Baby\0", 2004, 87},
+            {56, "Brokeback Mountain\0", 2005, 87},
+            {57, "Crash\0", 2004, 78},
+            {58, "Pan's Labyrinth\0", 2006, 89},
+            {59, "The Prestige\0", 2006, 88},
+            {60, "No Country for Old Men\0", 2007, 90},
+            {61, "There Will Be Blood\0", 2007, 89},
+            {62, "WALL-E\0", 2008, 89},
+            {63, "Slumdog Millionaire\0", 2008, 88},
+            {64, "The Dark Knight\0", 2008, 90},
+            {65, "Up\0", 2009, 88},
+            {66, "Avatar\0", 2009, 83},
+            {67, "Inception\0", 2010, 88},
+            {68, "Toy Story 3\0", 2010, 87},
+            {69, "Black Swan\0", 2010, 85},
+            {70, "The Social Network\0", 2010, 88},
+            {71, "The King's Speech\0", 2010, 87},
+            {72, "The Artist\0", 2011, 88},
+            {73, "Hugo\0", 2011, 87},
+            {74, "The Help\0", 2011, 81},
+            {75, "The Avengers\0", 2012, 85},
+            {76, "Django Unchained\0", 2012, 87},
+            {77, "Life of Pi\0", 2012, 86},
+            {78, "Gravity\0", 2013, 87},
+            {79, "12 Years a Slave\0", 2013, 88},
+            {80, "Her\0", 2013, 89},
+            {81, "Boyhood\0", 2014, 87},
+            {82, "Birdman or (The Unexpected Virtue of Ignorance)\0", 2014, 88},
+            {83, "The Grand Budapest Hotel\0", 2014, 87},
+            {84, "Spotlight\0", 2015, 88},
+            {85, "Mad Max: Fury Road\0", 2015, 90},
+            {86, "The Revenant\0", 2015, 88},
+            {87, "La La Land\0", 2016, 89},
+            {88, "Arrival\0", 2016, 88},
+            {89, "Moonlight\0", 2016, 88},
+            {90, "Get Out\0", 2017, 87},
+            {91, "Dunkirk\0", 2017, 89},
+            {92, "The Shape of Water\0", 2017, 87},
+            {93, "Three Billboards Outside Ebbing, Missouri\0", 2017, 88},
+            {94, "Coco\0", 2017, 89},
+            {95, "Call Me by Your Name\0", 2017, 88},
+            {96, "Lady Bird\0", 2017, 87},
+            {97, "Bohemian Rhapsody\0", 2018, 88},
+            {98, "A Star is Born\0", 2018, 87},
+            {99, "Black Panther\0", 2018, 88},
+            {100, "Parasite\0", 2019, 89},
+            {101, "Jojo Rabbit\0", 2019, 87},
+            {102, "Joker\0", 2019, 86},
+            {103, "Once Upon a Time... In Hollywood\0", 2019, 88},
+            {104, "1917\0", 2019, 88},
+            {105, "The Irishman\0", 2019, 87}
+
+        };
 
     for (int i = 0; i < sizeof(initial_movies) / sizeof(Movie); i++) {
         Movie *movie_id_copy = calloc(1, sizeof(Movie));
@@ -46,7 +153,7 @@ void initialize_hash_tables(HashTable *table_id, HashTable *table_name) {
         memcpy(movie_id_copy, &initial_movies[i], sizeof(Movie));
         memcpy(movie_name_copy, &initial_movies[i], sizeof(Movie));
 
-        hashtable_set(
+        hashlist_insert(
             table_name,
             movie_name_copy->name,
             movie_name_copy
@@ -81,13 +188,17 @@ void print_movie(HashTable_ValRef value) {
 }
 
 void app_get_input(char *input) {
-    fgets(input, APP_MAX_INPUT_LEN, stdin);
+    fgets(input, APP_MAX_STR_LEN, stdin);
 
     while (*input != EOF && *input != '\n') {
         input += 1;
     }
 
     *input = '\0';
+}
+
+int integer_compare(void *a, void *b) {
+    return *(int *)a - *(int *)b;
 }
 
 void KeyToContinue() {
@@ -111,8 +222,36 @@ int main() {
         .choice = 0,
     };
 
-    HashTable table_id = hashtable_new(MAX_MOVIES, NULL, print_movie, HASHTABLE_KEY_NUMBER, false, true);
-    HashTable table_name = hashtable_new(MAX_MOVIES * 4, NULL, print_movie, HASHTABLE_KEY_STRING, false, true);
+    LinkedList *table_available_ids = linked_list(sizeof(int));
+
+    HashTable table_id = hashtable_new(
+        APP_HASHTABLE_INITIAL_LEN_BASE,
+
+        HASHTABLE_DEFAULT_RESIZE_FACTOR,
+        APP_HASHTABLE_LOWER_LOAD_FACTOR,
+        APP_HASHTABLE_UPPER_LOAD_FACTOR,
+
+        NULL,
+        print_movie,
+        HASHTABLE_KEY_NUMBER,
+        false,
+        true
+
+    );
+    HashList table_name = hashlist_new(
+        APP_HASHTABLE_INITIAL_LEN_BASE * 4,
+
+        HASHTABLE_DEFAULT_RESIZE_FACTOR,
+        APP_HASHTABLE_LOWER_LOAD_FACTOR,
+        APP_HASHTABLE_UPPER_LOAD_FACTOR,
+
+        NULL,
+        print_movie,
+        HASHTABLE_KEY_STRING,
+        false,
+        true
+
+    );
 
     initialize_hash_tables(&table_id, &table_name);
 
@@ -162,7 +301,7 @@ int main() {
                 printlog(LOG_INFO, "Showing hash table by name:");
                 printf("\n");
 
-                hashtable_print(&table_name, app.table_format);
+                hashlist_print(&table_name, app.table_format);
                 KeyToContinue();
 
                 break;
@@ -199,14 +338,26 @@ int main() {
                 app_get_input(app.input);
                 printf("\n");
 
-                Movie *movie = (Movie *)hashtable_get(&table_name, app.input);
+                HashList_Entry *entry = hashlist_get(&table_name, app.input);
 
-                if (movie) {
-                    printlog(LOG_INFO, "Movie found:");
-                    print_movie(movie);
+                if (!entry || !entry->head) {
+                    printlog(LOG_WARN, "No movies found.");
+                    KeyToContinue();
+                    break;
+                }
+
+                HashList_EntryNode *node = entry->head;
+
+                size_t count = 1;
+
+                printlog(LOG_INFO, "Movies found: ");
+
+                while (node) {
+                    printf("\t[%d]: ", count);
+                    print_movie(node->value);
                     printf("\n");
-                } else {
-                    printlog(LOG_WARN, "Movie not found.");
+                    count += 1;
+                    node = node->next;
                 }
 
                 KeyToContinue();
@@ -216,7 +367,14 @@ int main() {
             case 5: {
                 TemplateReset();
 
-                static int id = 6;
+                int id = table_available_ids->head
+                             ? (*(int *)(table_available_ids->head->value_addr))
+                             : table_id.size + 1;
+
+                if (id > table_id.size + 1) {
+                    delete_index(table_available_ids, 0, 0);
+                    id = table_id.size + 1;
+                }
 
                 Movie *movie = calloc(1, sizeof(Movie));
                 Movie *movie_copy = calloc(1, sizeof(Movie));
@@ -232,12 +390,16 @@ int main() {
                 app_get_input(app.input);
                 sscanf(app.input, "%f", &movie->rating);
 
-                movie->id = ++id;
+                movie->id = id;
 
                 memcpy(movie_copy, movie, sizeof(Movie));
 
                 hashtable_set(&table_id, &movie->id, movie);
-                hashtable_set(&table_name, movie_copy->name, movie_copy);
+                hashlist_insert(&table_name, movie_copy->name, movie_copy);
+
+                if (table_available_ids->length) {
+                    delete_index(table_available_ids, 0, 0);
+                }
 
                 printlog(LOG_INFO, "Movie added successfully.");
 
@@ -257,6 +419,12 @@ int main() {
 
                 printdev("Choice is: %d", choice);
 
+                if (choice < 0 || choice > 1) {
+                    printlog(LOG_ERROR, "Invalid choice.");
+                    KeyToContinue();
+                    break;
+                }
+
                 if (choice == 0) {
                     int id = 0;
 
@@ -269,31 +437,91 @@ int main() {
 
                     Movie *movie = (Movie *)hashtable_get(&table_id, &id);
 
-                    if (movie) {
-                        hashtable_delete(&table_id, &id);
-                        hashtable_delete(&table_name, movie->name);
-                        printlog(LOG_INFO, "Movie removed successfully.");
-                    } else {
+                    if (!movie) {
                         printlog(LOG_WARN, "Movie not found.");
+                        KeyToContinue();
+                        break;
                     }
+
+                    HashList_Entry *entry = hashlist_get(&table_name, movie->name);
+
+                    if (!entry->head || !entry->head->next) {
+                        hashlist_delete(&table_name, movie->name);
+                    } else {
+                        HashList_EntryNode *prev = NULL;
+                        HashList_EntryNode *node = entry->head;
+
+                        while (node) {
+                            if (((Movie *)node->value)->id == movie->id) {
+                                if (!node->next) {
+                                    entry->tail = prev;
+                                }
+
+                                if (!prev) {
+                                    entry->head = node->next;
+                                } else {
+                                    prev->next = node->next;
+                                }
+
+                                table_name.size -= 1;
+                                free(node->value);
+                                free(node);
+                                break;
+                            }
+
+                            prev = node;
+                            node = node->next;
+                        }
+
+                        if (entry->head) {
+                            entry->key = ((Movie *)entry->head)->name;
+                        }
+                    }
+
+                    hashtable_delete(&table_id, &id);
+
+                    if (id <= table_id.size) {
+                        unshift(table_available_ids, integer(id));
+                        sortll(table_available_ids, integer_compare);
+                    }
+
+                    printlog(LOG_INFO, "Movie removed successfully.");
+
                 } else if (choice == 1) {
                     printf("[INPUT]: Type the movie name: ");
                     app_get_input(app.input);
 
                     printf("\n");
 
-                    Movie *movie = (Movie *)hashtable_get(&table_name, app.input);
+                    HashList_Entry *entry = hashlist_get(&table_name, app.input);
 
-                    if (movie) {
-                        hashtable_delete(&table_id, &movie->id);
-                        hashtable_delete(&table_name, app.input);
-                        printlog(LOG_INFO, "Movie removed successfully.");
-                    } else {
-                        printlog(LOG_WARN, "Movie not found.");
+                    if (!entry) {
+                        printlog(LOG_WARN, "No matching movies.");
+                        KeyToContinue();
+                        break;
                     }
 
-                } else {
-                    printlog(LOG_ERROR, "Invalid choice.");
+                    int count = 0;
+                    HashList_EntryNode *node = entry->head;
+
+                    while (node) {
+                        int node_movie_id = ((Movie *)(node->value))->id;
+
+                        hashtable_delete(&table_id, &node_movie_id);
+
+                        if (node_movie_id <= table_id.size) {
+                            unshift(table_available_ids, integer(node_movie_id));
+                            sortll(table_available_ids, integer_compare);
+                        }
+
+                        count += 1;
+                        node = node->next;
+                    }
+
+                    /** This will delete the whole entry */
+                    hashlist_delete(&table_name, app.input);
+
+                    printlog(LOG_INFO, "Movies removed successfully: %d.", count);
                 }
 
                 KeyToContinue();
@@ -319,7 +547,7 @@ int main() {
     TemplateReset();
 
     hashtable_empty(&table_id);
-    hashtable_empty(&table_name);
+    hashlist_empty(&table_name);
 
     printlog(LOG_INFO, "See you in space cowboy!");
 
