@@ -546,8 +546,16 @@ int main() {
 
     TemplateReset();
 
+    printlog(LOG_INFO, "Deleting all entries of both tables...");
+
     hashtable_empty(&table_id);
+    printdev("Removed hashed ids table");
+
     hashlist_empty(&table_name);
+    printdev("Removed hashed names table");
+
+    printlog(LOG_WARN, "2,000,000 records affected. (just like in your deletes without where clause queries)");
+    printf("\n");
 
     printlog(LOG_INFO, "See you in space cowboy!");
 
