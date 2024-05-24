@@ -61,8 +61,9 @@ size_t hashtable_hash_default(HashTable *table, HashTable_KeyRef key) {
     size_t hash = 1;
     char *strkey = (char *)key;
 
-    size_t prime = 0x811c9dc5;  // FNV-1a prime
-    hash = 0xcbf29ce484222325;  // FNV-1a offset basis
+    /** FNV-1a standard prime based folding */
+    size_t prime = 0x811c9dc5;
+    hash = 0xcbf29ce484222325;
 
     while (*strkey) {
         hash = hash ^ *strkey;
@@ -149,7 +150,7 @@ HashTable_SetStatus hashtable_set(HashTable *table, HashTable_KeyRef key, HashTa
         }
 
         debug(
-            printf("[DEBUG]: Key set: ");
+            printf("[DEBUG]: Key set hashtable: ");
             hashtable_print_key(table, key);
             printf("\n");
 
@@ -175,7 +176,7 @@ HashTable_SetStatus hashtable_set(HashTable *table, HashTable_KeyRef key, HashTa
             item->value = value;
 
             debug(
-                printf("[DEBUG]: Key update: ");
+                printf("[DEBUG]: Key update hashtable ");
                 hashtable_print_key(table, key);
                 printf("\n");
 

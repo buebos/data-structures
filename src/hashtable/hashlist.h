@@ -89,8 +89,8 @@ HashList hashlist_new(
     size_t capacity,
 
     float resize_factor,
-    float upper_load_factor,
     float lower_load_factor,
+    float upper_load_factor,
 
     HashList_HashFn hash,
     HashList_PrintItemFn print,

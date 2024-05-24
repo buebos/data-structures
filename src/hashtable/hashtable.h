@@ -81,8 +81,8 @@ HashTable hashtable_new(
     size_t capacity,
 
     float resize_factor,
-    float upper_load_factor,
     float lower_load_factor,
+    float upper_load_factor,
 
     HashTable_HashFn hash,
     HashTable_PrintItemFn print,

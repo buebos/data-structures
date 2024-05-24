@@ -61,8 +61,9 @@ size_t hashlist_hash_default(HashList *hlist, HashList_KeyRef key) {
     size_t hash = 1;
     char *strkey = (char *)key;
 
-    size_t prime = 0x811c9dc5;  // FNV-1a prime
-    hash = 0xcbf29ce484222325;  // FNV-1a offset basis
+    /** FNV-1a standard prime based folding */
+    size_t prime = 0x811c9dc5;
+    hash = 0xcbf29ce484222325;
 
     while (*strkey) {
         hash = hash ^ *strkey;
@@ -154,7 +155,7 @@ HashList_SetStatus hashlist_insert(HashList *hlist, HashList_KeyRef key, HashLis
         }
 
         debug(
-            printf("[DEBUG]: Key set: ");
+            printf("[DEBUG]: Key set hashlist: ");
             hashlist_print_key(hlist, key);
             printf("\n");
 
@@ -168,15 +169,6 @@ HashList_SetStatus hashlist_insert(HashList *hlist, HashList_KeyRef key, HashLis
 
     while (entry) {
         if (hashlist_key_is_match(hlist, entry->key, key)) {
-            if (hlist->key_should_free) {
-                free(entry->key);
-                entry->key = key;
-            }
-
-            if (hlist->value_should_free) {
-                free(entry->head);
-            }
-
             entry->tail->next = calloc(1, sizeof(HashList_EntryNode));
             entry->tail = entry->tail->next;
             entry->tail->value = value;
@@ -189,7 +181,7 @@ HashList_SetStatus hashlist_insert(HashList *hlist, HashList_KeyRef key, HashLis
             }
 
             debug(
-                printf("[DEBUG]: Key update: ");
+                printf("[DEBUG]: Key pushed hashlist: ");
                 hashlist_print_key(hlist, key);
                 printf("\n");
 
@@ -334,13 +326,17 @@ void hashlist_resize(HashList *hlist) {
             }
 
             HashList_EntryNode *node = entry->head;
+            HashList_EntryNode *next = NULL;
 
             while (node) {
+                next = node->next;
+
                 hashlist_insert(hlist, entry->key, node->value);
                 hlist->size = size_initial;
+
                 free(node);
 
-                node = node->next;
+                node = next;
             }
 
             prev = entry;
