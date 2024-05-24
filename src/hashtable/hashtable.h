@@ -18,7 +18,7 @@
 #endif  // !HashTable_KeyRef
 
 #define HASHTABLE_DEFAULT_RESIZE_FACTOR 1.5f
-#define HASHTABLE_RESIZE_OFFSET 4
+#define HASHTABLE_RESIZE_OFFSET 1
 
 typedef struct HashTable HashTable;
 

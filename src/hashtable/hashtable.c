@@ -50,12 +50,16 @@ bool hashtable_should_resize_shrink(HashTable *table) {
         return false;
     }
 
+    if (table->items[table->capacity - 1] != NULL) {
+        return false;
+    }
+
     return table->size < table->capacity * table->lower_load_factor;
 }
 
 size_t hashtable_hash_default(HashTable *table, HashTable_KeyRef key) {
     if (table->key_type == HASHTABLE_KEY_NUMBER) {
-        return (*(int *)key) % table->capacity;
+        return ((*(int *)key) - 1) % table->capacity;
     }
 
     size_t hash = 1;
@@ -133,6 +137,8 @@ HashTable_Entry *hashtable_item_alloc(HashTable_KeyRef key, HashTable_ValRef val
     return item;
 }
 
+static bool should_resize = true;
+
 HashTable_SetStatus hashtable_set(HashTable *table, HashTable_KeyRef key, HashTable_ValRef value) {
     if (!table->items || !table->capacity) {
         table->items = calloc(table->resize_factor, sizeof(HashTable_Entry *));
@@ -145,7 +151,7 @@ HashTable_SetStatus hashtable_set(HashTable *table, HashTable_KeyRef key, HashTa
         table->items[index] = hashtable_item_alloc(key, value);
         table->size += 1;
 
-        if (hashtable_should_resize_grow(table)) {
+        if (hashtable_should_resize_grow(table) && should_resize) {
             hashtable_resize(table);
         }
 
@@ -192,7 +198,7 @@ HashTable_SetStatus hashtable_set(HashTable *table, HashTable_KeyRef key, HashTa
     prev->next = hashtable_item_alloc(key, value);
     table->size += 1;
 
-    if (hashtable_should_resize_grow(table)) {
+    if (hashtable_should_resize_grow(table) && should_resize) {
         hashtable_resize(table);
     }
 
@@ -247,7 +253,7 @@ HashTable_DelStatus hashtable_delete(HashTable *table, HashTable_KeyRef key) {
 
             table->size -= 1;
 
-            if (hashtable_should_resize_shrink(table)) {
+            if (hashtable_should_resize_shrink(table) && should_resize) {
                 hashtable_resize(table);
             }
 
@@ -290,12 +296,14 @@ void hashtable_resize(HashTable *table) {
      * Updating the capacity first so the hashing algorithm
      * gets the correct data.
      */
-    table->capacity = table->size / table->upper_load_factor + HASHTABLE_RESIZE_OFFSET;
+    table->capacity = table->size * (1 / table->upper_load_factor);
     table->items = calloc(table->capacity, sizeof(HashTable_Entry *));
 
     if (!size_initial) {
         return;
     }
+
+    should_resize = false;
 
     printdev("Resizing hash table: %zu -> %zu\n", capacity_prev, table->capacity);
 
@@ -320,6 +328,8 @@ void hashtable_resize(HashTable *table) {
             item = item->next;
         }
     }
+
+    should_resize = true;
 
     if (items_prev) {
         free(items_prev);

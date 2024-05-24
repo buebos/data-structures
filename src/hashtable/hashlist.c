@@ -138,6 +138,8 @@ HashList_Entry *hashlist_item_alloc(HashList_KeyRef key, HashList_ValRef value) 
     return entry;
 }
 
+static bool should_resize = true;
+
 HashList_SetStatus hashlist_insert(HashList *hlist, HashList_KeyRef key, HashList_ValRef value) {
     if (!hlist->items || !hlist->capacity) {
         hlist->items = calloc(hlist->resize_factor, sizeof(HashList_Entry *));
@@ -150,7 +152,7 @@ HashList_SetStatus hashlist_insert(HashList *hlist, HashList_KeyRef key, HashLis
         hlist->items[index] = hashlist_item_alloc(key, value);
         hlist->size += 1;
 
-        if (hashlist_should_resize_grow(hlist)) {
+        if (hashlist_should_resize_grow(hlist) && should_resize) {
             hashlist_resize(hlist);
         }
 
@@ -176,7 +178,7 @@ HashList_SetStatus hashlist_insert(HashList *hlist, HashList_KeyRef key, HashLis
             hlist->size += 1;
             entry->length += 1;
 
-            if (hashlist_should_resize_grow(hlist)) {
+            if (hashlist_should_resize_grow(hlist) && should_resize) {
                 hashlist_resize(hlist);
             }
 
@@ -197,7 +199,7 @@ HashList_SetStatus hashlist_insert(HashList *hlist, HashList_KeyRef key, HashLis
     prev->next = hashlist_item_alloc(key, value);
     hlist->size += 1;
 
-    if (hashlist_should_resize_grow(hlist)) {
+    if (hashlist_should_resize_grow(hlist) && should_resize) {
         hashlist_resize(hlist);
     }
 
@@ -259,7 +261,7 @@ HashList_DelStatus hashlist_delete(HashList *hlist, HashList_KeyRef key) {
 
             free(entry);
 
-            if (hashlist_should_resize_shrink(hlist)) {
+            if (hashlist_should_resize_shrink(hlist) && should_resize) {
                 hashlist_resize(hlist);
             }
 
@@ -283,6 +285,7 @@ HashList_Entry *hashlist_get(HashList *hlist, HashList_KeyRef key) {
 
     while (entry) {
         if (hashlist_key_is_match(hlist, entry->key, key)) {
+            printf("[INFO]: Found on index: %zu\n", index);
             return entry;
         }
 
@@ -302,12 +305,14 @@ void hashlist_resize(HashList *hlist) {
      * Updating the capacity first so the hashing algorithm
      * gets the correct data.
      */
-    hlist->capacity = hlist->size / hlist->upper_load_factor + HASHLIST_RESIZE_OFFSET;
+    hlist->capacity = hlist->size / hlist->upper_load_factor;
     hlist->items = calloc(hlist->capacity, sizeof(HashList_Entry *));
 
     if (!size_initial) {
         return;
     }
+
+    should_resize = false;
 
     printdev("Resizing hash hlist: %zu -> %zu\n", capacity_prev, hlist->capacity);
 
@@ -344,6 +349,8 @@ void hashlist_resize(HashList *hlist) {
         }
     }
 
+    should_resize = true;
+
     if (items_prev) {
         free(items_prev);
     }
@@ -377,6 +384,7 @@ void hashlist_print(HashList *hlist, HashList_PrintFormat format) {
             int count = 1;
             HashList_EntryNode *node = entry->head;
 
+            printf("[%zu]: ", hlist->hash(hlist, entry->key));
             hashlist_print_key(hlist, entry->key);
             printf(" =>\n");
 

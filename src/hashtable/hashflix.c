@@ -15,8 +15,6 @@
 #define APP_MOVIES_INITIAL_LEN 105
 
 #define APP_HASHTABLE_INITIAL_LEN_BASE 200
-#define APP_HASHTABLE_LOWER_LOAD_FACTOR 0.25f
-#define APP_HASHTABLE_UPPER_LOAD_FACTOR 0.25f
 
 typedef struct {
     int id;
@@ -228,8 +226,8 @@ int main() {
         APP_HASHTABLE_INITIAL_LEN_BASE,
 
         HASHTABLE_DEFAULT_RESIZE_FACTOR,
-        APP_HASHTABLE_LOWER_LOAD_FACTOR,
-        APP_HASHTABLE_UPPER_LOAD_FACTOR,
+        1.0f,
+        1.0f,
 
         NULL,
         print_movie,
@@ -242,8 +240,8 @@ int main() {
         APP_HASHTABLE_INITIAL_LEN_BASE * 4,
 
         HASHTABLE_DEFAULT_RESIZE_FACTOR,
-        APP_HASHTABLE_LOWER_LOAD_FACTOR,
-        APP_HASHTABLE_UPPER_LOAD_FACTOR,
+        0.25f,
+        0.25f,
 
         NULL,
         print_movie,
